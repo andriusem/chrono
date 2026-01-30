@@ -206,17 +206,14 @@ export function EmployeeDashboard() {
   return (
     <MainLayout>
       <div className="space-y-6">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <h1 className="text-2xl font-bold">Track Time</h1>
-          {userProjects.length > 0 && (
-            <ProjectSelector
-              projects={userProjects}
-              selectedProjectId={selectedProjectId}
-              onSelectProject={setSelectedProjectId}
-            />
-          )}
-        </div>
+        {/* Project Selector */}
+        {userProjects.length > 0 && (
+          <ProjectSelector
+            projects={userProjects}
+            selectedProjectId={selectedProjectId}
+            onSelectProject={setSelectedProjectId}
+          />
+        )}
 
         {/* Main content */}
         {userProjects.length === 0 ? (
@@ -225,9 +222,6 @@ export function EmployeeDashboard() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Activity Grid - takes 2 columns on large screens */}
             <div className="lg:col-span-2">
-              <h2 className="text-lg font-semibold mb-4">
-                {selectedProject?.name || 'Select a Project'}
-              </h2>
               {activities.length > 0 ? (
                 <ActivityGrid
                   activities={activities}
