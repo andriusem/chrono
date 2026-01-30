@@ -11,6 +11,7 @@ import { ActivityGrid } from '@/components/employee/ActivityGrid';
 import { TodaysLog } from '@/components/employee/TodaysLog';
 import { AttendanceCard } from '@/components/employee/AttendanceCard';
 import { EmptyState } from '@/components/employee/EmptyState';
+import { WeeklyMonthlyLog } from '@/components/employee/WeeklyMonthlyLog';
 import { StartActivityModal } from '@/components/modals/StartActivityModal';
 import { StopActivityModal } from '@/components/modals/StopActivityModal';
 import { EditTimeEntryModal } from '@/components/modals/EditTimeEntryModal';
@@ -266,10 +267,19 @@ export function EmployeeDashboard() {
                   message="This project doesn't have any activities yet. Contact your PM to add some."
                 />
               )}
+
+              {/* Weekly/Monthly Log below activity tiles */}
+              <div className="mt-6">
+                <WeeklyMonthlyLog
+                  entries={entries.filter((e) => e.userId === userId && !e.isDeleted)}
+                  activities={allActivities}
+                  projects={projects}
+                />
+              </div>
             </div>
 
-            {/* Today's Log - takes 1 column */}
-            <div>
+            {/* Today's Log - takes 1 column, stretches to bottom */}
+            <div className="flex flex-col">
               <TodaysLog
                 entries={todayEntries}
                 activities={allActivities}

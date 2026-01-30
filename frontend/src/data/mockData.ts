@@ -251,6 +251,10 @@ export const mockProjectAssignments: ProjectAssignment[] = [
 const today = new Date();
 const todayStr = today.toISOString().split('T')[0];
 const yesterdayStr = new Date(today.getTime() - 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+// Earlier dates for monthly view (2 weeks ago, 3 weeks ago)
+const twoWeeksAgoStr = new Date(today.getTime() - 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+const threeWeeksAgoStr = new Date(today.getTime() - 21 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+const lastWeekStr = new Date(today.getTime() - 8 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
 export const mockTimeEntries: TimeEntry[] = [
   // John's entries - including one RUNNING timer
@@ -362,6 +366,84 @@ export const mockTimeEntries: TimeEntry[] = [
     durationMinutes: 120,
     status: 'completed',
     comments: 'Tested login flow and found 2 bugs',
+    isDeleted: false,
+  },
+  // ============================================
+  // HISTORICAL ENTRIES (for monthly view)
+  // ============================================
+  // John's entries from last week
+  {
+    id: 'entry-10',
+    userId: 'user-2',
+    activityId: 'activity-2', // Development
+    projectId: 'project-1',
+    startTime: `${lastWeekStr}T09:00:00Z`,
+    endTime: `${lastWeekStr}T12:00:00Z`,
+    durationMinutes: 180,
+    status: 'completed',
+    comments: 'Built navigation component and footer',
+    isDeleted: false,
+  },
+  {
+    id: 'entry-11',
+    userId: 'user-2',
+    activityId: 'activity-3', // Testing
+    projectId: 'project-1',
+    startTime: `${lastWeekStr}T13:00:00Z`,
+    endTime: `${lastWeekStr}T15:30:00Z`,
+    durationMinutes: 150,
+    status: 'completed',
+    comments: 'Unit tests for auth module',
+    isDeleted: false,
+  },
+  // John's entries from 2 weeks ago
+  {
+    id: 'entry-12',
+    userId: 'user-2',
+    activityId: 'activity-1', // Design
+    projectId: 'project-1',
+    startTime: `${twoWeeksAgoStr}T10:00:00Z`,
+    endTime: `${twoWeeksAgoStr}T14:00:00Z`,
+    durationMinutes: 240,
+    status: 'completed',
+    comments: 'Initial design review with stakeholders',
+    isDeleted: false,
+  },
+  {
+    id: 'entry-13',
+    userId: 'user-2',
+    activityId: 'activity-6', // iOS Development
+    projectId: 'project-2',
+    startTime: `${twoWeeksAgoStr}T14:30:00Z`,
+    endTime: `${twoWeeksAgoStr}T17:30:00Z`,
+    durationMinutes: 180,
+    status: 'completed',
+    comments: 'Project kickoff and environment setup',
+    isDeleted: false,
+  },
+  // John's entries from 3 weeks ago
+  {
+    id: 'entry-14',
+    userId: 'user-2',
+    activityId: 'activity-4', // Communication
+    projectId: 'project-1',
+    startTime: `${threeWeeksAgoStr}T09:00:00Z`,
+    endTime: `${threeWeeksAgoStr}T11:00:00Z`,
+    durationMinutes: 120,
+    status: 'completed',
+    comments: 'Sprint planning meeting',
+    isDeleted: false,
+  },
+  {
+    id: 'entry-15',
+    userId: 'user-2',
+    activityId: 'activity-2', // Development
+    projectId: 'project-1',
+    startTime: `${threeWeeksAgoStr}T13:00:00Z`,
+    endTime: `${threeWeeksAgoStr}T17:00:00Z`,
+    durationMinutes: 240,
+    status: 'completed',
+    comments: 'Initial codebase setup and boilerplate',
     isDeleted: false,
   },
 ];

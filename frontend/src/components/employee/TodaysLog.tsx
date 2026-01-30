@@ -121,7 +121,7 @@ export function TodaysLog({
   }, 0);
 
   return (
-    <Card>
+    <Card className="flex flex-col h-full">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg">Today's Log</CardTitle>
@@ -138,7 +138,7 @@ export function TodaysLog({
             <p className="text-sm">Click an activity tile to start tracking.</p>
           </div>
         ) : (
-          <ScrollArea className="h-[400px] pr-4">
+          <ScrollArea className="flex-1 min-h-[300px] pr-4">
             <div className="space-y-2">
               {entries.map((entry) => {
                 const activity = activityMap.get(entry.activityId);
