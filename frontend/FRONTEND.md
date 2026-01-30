@@ -2,7 +2,7 @@
 
 > **UI/UX Prototype** for the Chrono Time Tracking Application
 > 
-> **Commit:** `e2aa3cf` - Add WeeklyMonthlyLog component and integrate into Employee Dashboard
+> **Commit:** `83a60dd` - Add HeaderAttendance component
 > **Co-Authored-By:** Claude Opus 4.5
 
 ---
@@ -78,7 +78,9 @@ frontend/
 │   │   │   └── TimerConflictModal.tsx    # Timer already running error
 │   │   │
 │   │   ├── layout/          # Layout components
-│   │   │   └── Header.tsx, Sidebar.tsx, etc.
+│   │   │   ├── Header.tsx            # App header with user menu
+│   │   │   ├── HeaderAttendance.tsx  # Compact clock-in/out in header
+│   │   │   └── Sidebar.tsx           # Navigation sidebar
 │   │   │
 │   │   └── ui/              # shadcn/ui components (16 components)
 │   │       ├── button.tsx, card.tsx, dialog.tsx, etc.
@@ -261,6 +263,16 @@ interface WeeklyMonthlyLogProps {
 - **Duration totals** - Per-day totals in header badges, overall totals in tab labels
 - **Entry details** - Activity color, name, project, time range, duration, comments
 - **Excludes running timers** - Only shows completed entries
+
+### HeaderAttendance
+
+Compact clock-in/clock-out display in the header for employees.
+
+**Features:**
+- **Employee-only** - Renders nothing for PM role
+- **Inline display** - Shows clock-in and clock-out times with icons
+- **Quick edit** - Clicking opens AttendanceModal for editing
+- **Empty state** - Shows `--:--` badges when times not set
 
 ---
 
