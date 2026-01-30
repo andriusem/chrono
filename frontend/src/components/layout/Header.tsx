@@ -5,6 +5,7 @@
 
 import { Clock } from 'lucide-react';
 import { ProfileDropdown } from './ProfileDropdown';
+import { HeaderAttendance } from './HeaderAttendance';
 import { formatDateLong } from '@/lib/formatters';
 
 export function Header() {
@@ -19,9 +20,12 @@ export function Header() {
           <span className="text-xl font-semibold tracking-tight">Chrono</span>
         </div>
 
-        {/* Today's date - centered on larger screens */}
-        <div className="hidden sm:block text-sm text-muted-foreground">
-          {formatDateLong(new Date())}
+        {/* Center section - date and attendance */}
+        <div className="flex items-center gap-4">
+          <div className="hidden sm:block text-sm text-muted-foreground">
+            {formatDateLong(new Date())}
+          </div>
+          <HeaderAttendance />
         </div>
 
         {/* User profile dropdown */}

@@ -9,19 +9,16 @@ import { MainLayout } from '@/components/layout/MainLayout';
 import { ProjectSelector } from '@/components/employee/ProjectSelector';
 import { ActivityGrid } from '@/components/employee/ActivityGrid';
 import { TodaysLog } from '@/components/employee/TodaysLog';
-import { AttendanceCard } from '@/components/employee/AttendanceCard';
 import { EmptyState } from '@/components/employee/EmptyState';
 import { WeeklyMonthlyLog } from '@/components/employee/WeeklyMonthlyLog';
 import { StartActivityModal } from '@/components/modals/StartActivityModal';
 import { StopActivityModal } from '@/components/modals/StopActivityModal';
 import { EditTimeEntryModal } from '@/components/modals/EditTimeEntryModal';
-import { AttendanceModal } from '@/components/modals/AttendanceModal';
 import { TimerConflictModal } from '@/components/modals/TimerConflictModal';
 
 import { useAuthStore } from '@/store/authStore';
 import { useProjectStore } from '@/store/projectStore';
 import { useTimeEntryStore } from '@/store/timeEntryStore';
-import { useAttendanceStore } from '@/store/attendanceStore';
 import { getTodayDateString } from '@/lib/formatters';
 import type { Activity, TimeEntry } from '@/types';
 
@@ -45,9 +42,7 @@ export function EmployeeDashboard() {
     updateEntry,
   } = useTimeEntryStore();
 
-  // Attendance store
-  const { getTodayRecord, clockIn, clockOut } = useAttendanceStore();
-
+  
   // Local state
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
 
@@ -55,8 +50,7 @@ export function EmployeeDashboard() {
   const [startModalActivity, setStartModalActivity] = useState<Activity | null>(null);
   const [stopModalEntry, setStopModalEntry] = useState<TimeEntry | null>(null);
   const [editModalEntry, setEditModalEntry] = useState<TimeEntry | null>(null);
-  const [showAttendanceModal, setShowAttendanceModal] = useState(false);
-  const [conflictModalMessage, setConflictModalMessage] = useState<string | null>(null);
+    const [conflictModalMessage, setConflictModalMessage] = useState<string | null>(null);
 
   // Get user's assigned projects
   const userProjects = useMemo(
@@ -106,12 +100,6 @@ export function EmployeeDashboard() {
     return map;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activities, getTodayMinutesForActivity, userId, entries]);
-
-  // Get today's attendance
-  const todayAttendance = useMemo(
-    () => getTodayRecord(userId),
-    [getTodayRecord, userId]
-  );
 
   // Get all activities and all projects for the log
   const allActivities = useProjectStore((state) => state.activities);
@@ -198,14 +186,6 @@ export function EmployeeDashboard() {
     setEditModalEntry(null);
   };
 
-  const handleSaveAttendance = (clockInTime: string, clockOutTime?: string) => {
-    clockIn(userId, clockInTime);
-    if (clockOutTime) {
-      clockOut(userId, clockOutTime);
-    }
-    toast.success('Attendance saved');
-  };
-
   // ============================================
   // RENDER
   // ============================================
@@ -237,12 +217,6 @@ export function EmployeeDashboard() {
             />
           )}
         </div>
-
-        {/* Attendance Card */}
-        <AttendanceCard
-          attendance={todayAttendance}
-          onOpenModal={() => setShowAttendanceModal(true)}
-        />
 
         {/* Main content */}
         {userProjects.length === 0 ? (
@@ -317,13 +291,6 @@ export function EmployeeDashboard() {
         entry={editModalEntry}
         activity={editModalActivity || null}
         onSave={handleSaveEdit}
-      />
-
-      <AttendanceModal
-        open={showAttendanceModal}
-        onClose={() => setShowAttendanceModal(false)}
-        attendance={todayAttendance}
-        onSave={handleSaveAttendance}
       />
 
       <TimerConflictModal
