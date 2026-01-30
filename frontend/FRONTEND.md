@@ -2,7 +2,7 @@
 
 > **UI/UX Prototype** for the Chrono Time Tracking Application
 > 
-> **Commit:** `83a60dd` - Add HeaderAttendance component
+> **Commit:** `ae5a076` - Refactor ActivityTile to row-based layout
 > **Co-Authored-By:** Claude Opus 4.5
 
 ---
@@ -53,8 +53,8 @@ frontend/
 │   │
 │   ├── components/
 │   │   ├── employee/        # Employee-specific components
-│   │   │   ├── ActivityGrid.tsx      # Grid layout for activity tiles
-│   │   │   ├── ActivityTile.tsx      # Clickable timer tile
+│   │   │   ├── ActivityGrid.tsx      # List container for activity rows
+│   │   │   ├── ActivityTile.tsx      # Row-based timer control
 │   │   │   ├── AttendanceCard.tsx    # Clock-in/out display
 │   │   │   ├── EmptyState.tsx        # No projects message
 │   │   │   ├── ProjectSelector.tsx   # Project dropdown
@@ -215,7 +215,7 @@ interface AttendanceState {
 
 ### ActivityTile
 
-The core interaction component for time tracking.
+Row-based interaction component for time tracking.
 
 ```typescript
 interface ActivityTileProps {
@@ -227,10 +227,12 @@ interface ActivityTileProps {
 }
 ```
 
+**Layout:** Color indicator | Activity name | Today's time | Timer/Status | Action button
+
 **Visual States:**
-- **Idle** - Shows play icon, "Not started" or today's tracked time
-- **Running** - Pulsing animation, live timer display, stop icon
-- **Paused** - Amber ring, "Paused" text, play icon
+- **Idle** - Play icon, muted background
+- **Running** - Primary ring, live timer display, stop icon, pulsing indicator
+- **Paused** - Amber ring/background, "Paused" text, play icon
 
 ### useTimer Hook
 
