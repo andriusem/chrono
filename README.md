@@ -1,29 +1,70 @@
 # Chrono - Time Tracking Application
 
-A timer-based time tracking application for small teams, featuring activity tracking and attendance management.
+A timer-based time tracking application for small teams (1-20 people), built with React, FastAPI, and Microsoft Azure.
+
+## Overview
+
+Chrono helps employees track time spent on project activities using a simple timer interface. Click to start, work, click to stop. It also tracks daily attendance (clock-in/clock-out) and integrates with Microsoft Teams for seamless access and reminders.
 
 ## Features
 
 ### MVP (Version 1.0)
-- Timer-based activity tracking (start/pause/stop)
-- Activity tiles with visual status indicators
-- Clock-in/Clock-out attendance submission
-- Manual time entry editing
-- Project Manager dashboard
-- Microsoft Teams integration
+
+- **Timer-based time tracking** - Click activity tiles to start/pause/stop timers
+- **Project & Activity management** - PMs create projects and activities
+- **Team assignments** - PMs assign employees to projects (employees only see assigned projects)
+- **Daily attendance** - Clock-in/clock-out submission with end-of-day reminders
+- **Microsoft Teams integration** - Embedded as a Teams tab
+- **Teams Bot notifications** - Automated attendance reminders (organization timezone, DST-aware)
+- **Manual time editing** - Correct or backdate entries
+- **Soft delete** - Data preserved for traceability (no permanent deletion)
 
 ### Version 2.0 (Planned)
+
 - PM timesheet validation workflow
-- Reporting (by employee, project, activity)
-- Monday.com integration (auto-sync tasks)
+- Entry locking after approval
+- Reporting dashboards (by employee, project, activity)
+- CSV export
+- Full audit trail
+- Monday.com integration
 
 ## Tech Stack
 
-- **Frontend:** React with TypeScript
-- **Backend:** Python FastAPI
-- **Database:** Azure SQL Database
-- **Authentication:** Microsoft Entra ID
-- **Hosting:** Azure (App Service + Static Web Apps)
+| Component | Technology |
+|-----------|------------|
+| Frontend | React + TypeScript |
+| Backend | Python FastAPI |
+| Database | Azure SQL |
+| Authentication | Microsoft Entra ID |
+| Hosting | Azure App Service + Static Web Apps |
+| Background Jobs | Azure Functions (Timer Trigger) |
+| Notifications | Azure Bot Service + Teams |
+
+## Project Structure
+
+```
+chrono/
+├── backend/              # FastAPI backend
+│   ├── app/
+│   │   ├── api/          # REST endpoints
+│   │   ├── models/       # SQLAlchemy models
+│   │   ├── schemas/      # Pydantic schemas
+│   │   ├── services/     # Business logic
+│   │   └── core/         # Config, auth, database
+│   └── tests/
+├── frontend/             # React frontend
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── hooks/
+│   │   ├── services/
+│   │   └── types/
+│   └── package.json
+├── docs/
+│   ├── prd.md            # Product Requirements Document
+│   └── mvp.md            # MVP Technical Plan
+└── CLAUDE.md             # AI assistant context
+```
 
 ## Getting Started
 
@@ -31,17 +72,18 @@ A timer-based time tracking application for small teams, featuring activity trac
 
 - Python 3.10+
 - Node.js 18+
-- Azure account with SQL Database
-- Microsoft Entra ID app registration
+- Azure subscription
+- Microsoft Entra ID tenant
 
 ### Backend Setup
 
 ```bash
 cd backend
 python -m venv venv
-venv\Scripts\activate  # Windows
+venv\Scripts\activate      # Windows
+# source venv/bin/activate # Mac/Linux
 pip install -r requirements.txt
-uvicorn main:app --reload
+uvicorn main:app --reload --port 8000
 ```
 
 ### Frontend Setup
@@ -52,11 +94,39 @@ npm install
 npm run dev
 ```
 
+## Key Design Decisions
+
+| Decision | Rationale |
+|----------|-----------|
+| Timer-based (not manual entry) | Reduces friction, improves accuracy |
+| Soft delete (no hard delete) | Traceability and mistake recovery |
+| Organization timezone for reminders | Consistent team experience, automatic DST handling |
+| Azure Functions for scheduled jobs | Cost-effective serverless execution |
+| Comments instead of tasks entity | Keeps MVP simple |
+| Heartbeat-based timer | Reliable crash detection and recovery |
+
+## Business Rules
+
+1. **Single Timer** - Only one timer can run at a time per user
+2. **Project Assignments** - Employees only see projects they're assigned to
+3. **Heartbeat Timer** - 30-second heartbeat signal, 5-minute timeout marks entry as interrupted
+4. **Soft Delete** - Data is hidden, not permanently deleted; PMs can view deleted records
+5. **Midnight Split** - Timers crossing midnight are auto-split into two entries
+
 ## Documentation
 
-- [Product Requirements (PRD)](docs/prd.md)
-- [MVP Implementation Plan](docs/mvp.md)
+- **[Product Requirements (PRD)](docs/prd.md)** - What we're building and why
+- **[MVP Technical Plan](docs/mvp.md)** - How we're building it
+- **[CLAUDE.md](CLAUDE.md)** - Project context for AI assistants
+
+## Estimated Cost
+
+~€17-20/month on Azure (within €2000/year non-profit credits)
 
 ## License
 
 Proprietary - Internal use only
+
+---
+
+*Inspired by Odoo Projects and Timesheets modules*
