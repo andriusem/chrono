@@ -2,7 +2,7 @@
 
 > **UI/UX Prototype** for the Chrono Time Tracking Application
 > 
-> **Commit:** `ae5a076` - Refactor ActivityTile to row-based layout
+> **Commit:** `a81a056` - Add CurrentActivityCard component and update dashboard layout
 > **Co-Authored-By:** Claude Opus 4.5
 
 ---
@@ -59,7 +59,8 @@ frontend/
 │   │   │   ├── EmptyState.tsx        # No projects message
 │   │   │   ├── ProjectSelector.tsx   # Project dropdown
 │   │   │   ├── TodaysLog.tsx         # Today's time entries list
-│   │   │   └── WeeklyMonthlyLog.tsx  # Week/month grouped time history
+│   │   │   ├── WeeklyMonthlyLog.tsx  # Week/month grouped time history
+│   │   │   └── CurrentActivityCard.tsx # Running activity with comment editor
 │   │   │
 │   │   ├── pm/              # Project Manager components
 │   │   │   ├── FilterBar.tsx         # Date/employee/activity filters
@@ -275,6 +276,25 @@ Compact clock-in/clock-out display in the header for employees.
 - **Inline display** - Shows clock-in and clock-out times with icons
 - **Quick edit** - Clicking opens AttendanceModal for editing
 - **Empty state** - Shows `--:--` badges when times not set
+
+### CurrentActivityCard
+
+Displays running activity details with inline comment editing.
+
+```typescript
+interface CurrentActivityCardProps {
+  runningEntry?: TimeEntry;
+  activity?: Activity;
+  project?: Project;
+  onUpdateComments: (entryId: string, comments: string) => void;
+}
+```
+
+**Features:**
+- **Empty state** - "No activity running" message when idle
+- **Activity info** - Name, start time, project name
+- **Comment editor** - Textarea with auto-save (1s debounce)
+- **Save indicator** - Shows "Saving..." during auto-save
 
 ---
 
