@@ -8,7 +8,7 @@ import { toast } from 'sonner';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { ProjectSelector } from '@/components/employee/ProjectSelector';
 import { ActivityGrid } from '@/components/employee/ActivityGrid';
-import { TodaysLog } from '@/components/employee/TodaysLog';
+import { CurrentActivityCard } from '@/components/employee/CurrentActivityCard';
 import { EmptyState } from '@/components/employee/EmptyState';
 import { WeeklyMonthlyLog } from '@/components/employee/WeeklyMonthlyLog';
 import { StartActivityModal } from '@/components/modals/StartActivityModal';
@@ -19,7 +19,6 @@ import { TimerConflictModal } from '@/components/modals/TimerConflictModal';
 import { useAuthStore } from '@/store/authStore';
 import { useProjectStore } from '@/store/projectStore';
 import { useTimeEntryStore } from '@/store/timeEntryStore';
-import { getTodayDateString } from '@/lib/formatters';
 import type { Activity, TimeEntry } from '@/types';
 
 export function EmployeeDashboard() {
@@ -33,8 +32,7 @@ export function EmployeeDashboard() {
   const {
     entries,
     getRunningTimer,
-    getEntriesForUser,
-    getTodayMinutesForActivity,
+        getTodayMinutesForActivity,
     startTimer,
     pauseTimer,
     resumeTimer,
@@ -81,14 +79,6 @@ export function EmployeeDashboard() {
     () => getRunningTimer(userId),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [getRunningTimer, userId, entries]
-  );
-
-  // Get today's entries
-  const todayStr = getTodayDateString();
-  const todayEntries = useMemo(
-    () => getEntriesForUser(userId, todayStr),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [getEntriesForUser, userId, todayStr, entries]
   );
 
   // Calculate today's minutes per activity
@@ -186,6 +176,10 @@ export function EmployeeDashboard() {
     setEditModalEntry(null);
   };
 
+  const handleUpdateComments = (entryId: string, comments: string) => {
+    updateEntry(entryId, { comments });
+  };
+
   // ============================================
   // RENDER
   // ============================================
@@ -219,42 +213,42 @@ export function EmployeeDashboard() {
         {userProjects.length === 0 ? (
           <EmptyState />
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Activity Grid - takes 2 columns on large screens */}
-            <div className="lg:col-span-2">
-              {activities.length > 0 ? (
-                <ActivityGrid
-                  activities={activities}
-                  todayMinutesByActivity={todayMinutesByActivity}
-                  runningEntry={runningEntry}
-                  onActivityClick={handleActivityClick}
-                />
-              ) : (
-                <EmptyState
-                  title="No Activities"
-                  message="This project doesn't have any activities yet. Contact your PM to add some."
-                />
-              )}
-
-              {/* Weekly/Monthly Log below activity tiles */}
-              <div className="mt-6">
-                <WeeklyMonthlyLog
-                  entries={entries.filter((e) => e.userId === userId && !e.isDeleted)}
-                  activities={allActivities}
-                  projects={projects}
-                />
+          <div className="space-y-6">
+            {/* Top row: Activity Grid + Current Activity Card */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Activity Grid - takes 2 columns on large screens */}
+              <div className="lg:col-span-2">
+                {activities.length > 0 ? (
+                  <ActivityGrid
+                    activities={activities}
+                    todayMinutesByActivity={todayMinutesByActivity}
+                    runningEntry={runningEntry}
+                    onActivityClick={handleActivityClick}
+                  />
+                ) : (
+                  <EmptyState
+                    title="No Activities"
+                    message="This project doesn't have any activities yet. Contact your PM to add some."
+                  />
+                )}
               </div>
-            </div>
 
-            {/* Today's Log - takes 1 column, stretches to bottom */}
-            <div className="flex flex-col">
-              <TodaysLog
-                entries={todayEntries}
-                activities={allActivities}
-                projects={projects}
-                onEditEntry={handleEditEntry}
+              {/* Current Activity Card */}
+              <CurrentActivityCard
+                runningEntry={runningEntry}
+                activity={runningEntry ? allActivities.find((a) => a.id === runningEntry.activityId) : undefined}
+                project={runningEntry ? projects.find((p) => p.id === runningEntry.projectId) : undefined}
+                onUpdateComments={handleUpdateComments}
               />
             </div>
+
+            {/* Time History - full width below */}
+            <WeeklyMonthlyLog
+              entries={entries.filter((e) => e.userId === userId && !e.isDeleted)}
+              activities={allActivities}
+              projects={projects}
+              onEditEntry={handleEditEntry}
+            />
           </div>
         )}
       </div>
