@@ -141,7 +141,14 @@ Metric display following Odoo's stat button pattern.
 ```
 
 #### OdooHeader
-Page header with breadcrumbs, title, actions, and view switcher.
+Page header with breadcrumbs, title, actions, view switcher, and clock in/out.
+
+**Features:**
+- **Fixed/sticky** header that stays at top when scrolling
+- **Clock in/out display** for employees (click to edit via modal)
+- Breadcrumbs navigation
+- Primary and secondary actions
+- View mode switcher
 
 ```tsx
 <OdooHeader
@@ -284,6 +291,8 @@ All Odoo-style components use CSS custom properties and utility classes defined 
 - `.odoo-page` - Gray background page wrapper
 - `.odoo-sheet` - White card with border and shadow
 - `.odoo-header` - Page header with border
+- `.odoo-header-fixed` - Sticky header with shadow
+- `.odoo-attendance-btn` - Clock in/out button styling
 
 ### Button Classes
 - `.odoo-btn` - Base button style
