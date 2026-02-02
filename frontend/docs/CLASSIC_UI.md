@@ -344,6 +344,23 @@ The mock data reflects an NGO/nonprofit context inspired by ileya.fr:
 - Event Planning, Volunteer Coordination
 - Report Writing, Data Collection
 
+## Business Rules
+
+### Clock-In Required Before Activities
+Employees must clock in before they can start tracking time on any activity.
+
+- If an employee tries to start a timer without clocking in, a modal prompts them
+- Clicking "Clock In Now" opens the attendance modal
+- After clocking in, the employee can start tracking time
+
+```tsx
+// Enforced in OdooEmployeeDashboard.handleStartTimer()
+if (!isClockedIn) {
+  setShowClockInModal(true);
+  return;
+}
+```
+
 ## Design Principles
 
 The Classic UI follows these Odoo-inspired design principles:

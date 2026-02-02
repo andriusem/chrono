@@ -496,15 +496,7 @@ export const mockTimeEntries: TimeEntry[] = [
 // ============================================
 
 export const mockAttendance: Attendance[] = [
-  // Jean-Baptiste's attendance
-  {
-    id: 'att-1',
-    userId: 'user-2',
-    date: todayStr,
-    clockInTime: '08:45',
-    // No clock out - hasn't left yet
-    isDeleted: false,
-  },
+  // Jean-Baptiste's attendance - NO today record (to test clock-in requirement)
   {
     id: 'att-2',
     userId: 'user-2',

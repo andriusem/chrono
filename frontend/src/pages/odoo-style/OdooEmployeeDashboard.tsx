@@ -9,6 +9,7 @@ import { Clock, Calendar, FolderKanban } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { useProjectStore } from '@/store/projectStore';
 import { useTimeEntryStore } from '@/store/timeEntryStore';
+import { useAttendanceStore } from '@/store/attendanceStore';
 import {
   OdooHeader,
   FilterBar,
@@ -20,6 +21,9 @@ import { TimesheetGridView } from '@/components/odoo-style/timesheet/TimesheetGr
 import { formatDuration, getTodayDateString } from '@/lib/formatters';
 import { StatButton, StatButtonGroup } from '@/components/odoo-style/shared/StatButton';
 import { TimerConflictModal } from '@/components/modals/TimerConflictModal';
+import { ClockInRequiredModal } from '@/components/modals/ClockInRequiredModal';
+import { AttendanceModal } from '@/components/modals/AttendanceModal';
+import { toast } from 'sonner';
 
 export function OdooEmployeeDashboard() {
   const currentUser = useAuthStore((state) => state.currentUser);
@@ -44,10 +48,17 @@ export function OdooEmployeeDashboard() {
 
   // Modal state
   const [showConflictModal, setShowConflictModal] = useState(false);
+  const [showClockInModal, setShowClockInModal] = useState(false);
+  const [showAttendanceModal, setShowAttendanceModal] = useState(false);
   const [_pendingActivity, setPendingActivity] = useState<{
     activityId: string;
     projectId: string;
   } | null>(null);
+
+  // Attendance state
+  const { getTodayRecord, clockIn, clockOut } = useAttendanceStore();
+  const todayAttendance = currentUser ? getTodayRecord(currentUser.id) : undefined;
+  const isClockedIn = !!todayAttendance?.clockInTime;
 
   // Get user's projects
   const userProjects = useMemo(() => {
@@ -130,6 +141,13 @@ export function OdooEmployeeDashboard() {
     const targetProjectId = projectId || effectiveProjectId;
     if (!targetProjectId) return;
 
+    // BUSINESS RULE: Must be clocked in to start activities
+    if (!isClockedIn) {
+      setPendingActivity({ activityId, projectId: targetProjectId });
+      setShowClockInModal(true);
+      return;
+    }
+
     // Check for running timer
     if (runningTimer) {
       setPendingActivity({ activityId, projectId: targetProjectId });
@@ -138,6 +156,23 @@ export function OdooEmployeeDashboard() {
     }
 
     startTimer(currentUser.id, activityId, targetProjectId);
+  };
+
+  // Handle clock-in from modal
+  const handleClockInNow = () => {
+    setShowClockInModal(false);
+    setShowAttendanceModal(true);
+  };
+
+  // Handle attendance save
+  const handleAttendanceSave = (clockInTime: string, clockOutTime?: string) => {
+    if (!currentUser) return;
+    clockIn(currentUser.id, clockInTime);
+    if (clockOutTime) {
+      clockOut(currentUser.id, clockOutTime);
+    }
+    toast.success('Clocked in successfully! You can now start tracking time.');
+    setShowAttendanceModal(false);
   };
 
   const handleStopTimer = (entryId: string, comments?: string) => {
@@ -288,6 +323,24 @@ export function OdooEmployeeDashboard() {
         }}
         runningActivity={runningActivity}
         message="Please stop the current timer before starting a new one."
+      />
+
+      {/* Clock In Required Modal */}
+      <ClockInRequiredModal
+        open={showClockInModal}
+        onClose={() => {
+          setShowClockInModal(false);
+          setPendingActivity(null);
+        }}
+        onClockIn={handleClockInNow}
+      />
+
+      {/* Attendance Modal for Clock In */}
+      <AttendanceModal
+        open={showAttendanceModal}
+        onClose={() => setShowAttendanceModal(false)}
+        attendance={todayAttendance}
+        onSave={handleAttendanceSave}
       />
     </div>
   );
