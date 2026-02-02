@@ -4,9 +4,9 @@
 // Allows switching between List, Kanban, and Calendar views
 // Follows Odoo's view toggle pattern
 
-import { List, LayoutGrid, Calendar } from 'lucide-react';
+import { List, LayoutGrid, Calendar, Grid3x3 } from 'lucide-react';
 
-export type ViewMode = 'list' | 'kanban' | 'calendar';
+export type ViewMode = 'list' | 'kanban' | 'calendar' | 'grid';
 
 interface ViewSwitcherProps {
   currentView: ViewMode;
@@ -22,6 +22,7 @@ export function ViewSwitcher({
   const views: { mode: ViewMode; icon: React.ReactNode; label: string }[] = [
     { mode: 'list', icon: <List className="h-4 w-4" />, label: 'List' },
     { mode: 'kanban', icon: <LayoutGrid className="h-4 w-4" />, label: 'Kanban' },
+    { mode: 'grid', icon: <Grid3x3 className="h-4 w-4" />, label: 'Grid' },
     { mode: 'calendar', icon: <Calendar className="h-4 w-4" />, label: 'Calendar' },
   ];
 

@@ -10,7 +10,7 @@ Chrono offers two UI styles that stakeholders can compare:
 |---------|-----------|------------------------|
 | Layout | Card-based with sidebar | Table-based, full-width |
 | Editing | Modal dialogs | Inline editing in tables |
-| Views | Single view | Multiple views (List, Kanban) |
+| Views | Single view | Multiple views (List, Kanban, Grid) |
 | Filters | Minimal | Full filter bar with presets |
 | Aesthetic | Contemporary, rounded | Clean, functional, enterprise |
 
@@ -59,6 +59,8 @@ frontend/src/
 │   ├── timesheet/                 # Employee timesheet views
 │   │   ├── TimesheetListView.tsx  # Editable table view
 │   │   ├── TimesheetKanbanView.tsx # Activity cards view
+│   │   ├── TimesheetGridView.tsx  # Weekly calendar grid view
+│   │   ├── WeekNavigator.tsx      # Week navigation controls
 │   │   └── index.ts
 │   │
 │   └── project/                   # PM project views
@@ -193,6 +195,36 @@ Card-based view of activities with timer controls.
   project={selectedProject}
   onStartTimer={(activityId) => start(activityId)}
   onStopTimer={(entryId, comments) => stop(entryId, comments)}
+/>
+```
+
+#### TimesheetGridView
+Weekly calendar grid view (Odoo-style timesheet grid).
+
+**Features:**
+- Week navigation (Today button, prev/next arrows)
+- Rows = Project + Activity combinations
+- Columns = 7 days (Monday to Sunday)
+- Editable hour cells (click to edit, Enter to save)
+- Today's column highlighted with accent color
+- Row totals (Hours column)
+- Column totals in footer
+- "Add a line" to add new project/activity rows
+- Direct time entry by clicking empty cells
+
+```tsx
+<TimesheetGridView
+  onStartTimer={(activityId, projectId) => start(activityId, projectId)}
+/>
+```
+
+#### WeekNavigator
+Week navigation controls for the grid view.
+
+```tsx
+<WeekNavigator
+  currentWeekStart={weekStart}
+  onWeekChange={(newWeekStart) => setWeekStart(newWeekStart)}
 />
 ```
 

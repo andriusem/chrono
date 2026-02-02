@@ -16,6 +16,7 @@ import {
 } from '@/components/odoo-style/shared';
 import { TimesheetListView } from '@/components/odoo-style/timesheet/TimesheetListView';
 import { TimesheetKanbanView } from '@/components/odoo-style/timesheet/TimesheetKanbanView';
+import { TimesheetGridView } from '@/components/odoo-style/timesheet/TimesheetGridView';
 import { formatDuration, getTodayDateString } from '@/lib/formatters';
 import { StatButton, StatButtonGroup } from '@/components/odoo-style/shared/StatButton';
 import { TimerConflictModal } from '@/components/modals/TimerConflictModal';
@@ -193,7 +194,7 @@ export function OdooEmployeeDashboard() {
         }}
         viewMode={viewMode}
         onViewModeChange={setViewMode}
-        availableViews={['list', 'kanban']}
+        availableViews={['list', 'kanban', 'grid']}
       >
         {/* Filter Bar */}
         <FilterBar
@@ -253,14 +254,15 @@ export function OdooEmployeeDashboard() {
 
       {/* Main Content */}
       <div className="p-4">
-        {viewMode === 'list' ? (
+        {viewMode === 'list' && (
           <TimesheetListView
             entries={entries}
             groupBy={groupBy as 'date' | 'project' | 'activity' | null}
             onStartTimer={handleStartTimer}
             onStopTimer={handleStopTimer}
           />
-        ) : (
+        )}
+        {viewMode === 'kanban' && (
           <TimesheetKanbanView
             activities={activities}
             project={selectedProject || null}
@@ -268,6 +270,11 @@ export function OdooEmployeeDashboard() {
               handleStartTimer(activityId, effectiveProjectId || undefined)
             }
             onStopTimer={handleStopTimer}
+          />
+        )}
+        {viewMode === 'grid' && (
+          <TimesheetGridView
+            onStartTimer={handleStartTimer}
           />
         )}
       </div>
