@@ -23,7 +23,7 @@ import { TimerConflictModal } from '@/components/modals/TimerConflictModal';
 
 export function OdooEmployeeDashboard() {
   const currentUser = useAuthStore((state) => state.currentUser);
-  const { getProjectsForUser, getActivitiesForProject, getProjectById } =
+  const { getProjectsForUser, getActivitiesForProject, getProjectById, activities: allActivities } =
     useProjectStore();
   const {
     getEntriesForUser,
@@ -65,7 +65,7 @@ export function OdooEmployeeDashboard() {
   const activities = useMemo(() => {
     if (!effectiveProjectId) return [];
     return getActivitiesForProject(effectiveProjectId);
-  }, [effectiveProjectId, getActivitiesForProject]);
+  }, [effectiveProjectId, getActivitiesForProject, allActivities]);
 
   // Get time entries
   const entries = useMemo(() => {
