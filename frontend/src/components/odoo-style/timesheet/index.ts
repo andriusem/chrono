@@ -1,0 +1,6 @@
+// ============================================
+// ODOO-STYLE TIMESHEET COMPONENTS INDEX
+// ============================================
+
+export { TimesheetListView } from './TimesheetListView';
+export { TimesheetKanbanView } from './TimesheetKanbanView';

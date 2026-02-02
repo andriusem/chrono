@@ -48,7 +48,7 @@ export function CurrentActivityCard({
   // Empty state when no activity is running
   if (!runningEntry || !activity || !project) {
     return (
-      <Card>
+      <Card className="h-[400px] flex flex-col">
         <CardHeader className="pb-3">
           <CardTitle className="text-lg">Current Activity</CardTitle>
         </CardHeader>
@@ -64,7 +64,7 @@ export function CurrentActivityCard({
   }
 
   return (
-    <Card>
+    <Card className="h-[400px] flex flex-col">
       <CardHeader className="pb-0">
         <CardTitle className="text-lg">In Progress</CardTitle>
       </CardHeader>
@@ -106,9 +106,6 @@ export function CurrentActivityCard({
             placeholder="Add notes about what you're working on..."
             className="min-h-[120px] resize-none"
           />
-          <p className="text-xs text-muted-foreground">
-            Comments are saved automatically as you type
-          </p>
         </div>
       </CardContent>
     </Card>

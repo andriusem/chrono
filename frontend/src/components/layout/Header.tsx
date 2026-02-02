@@ -1,14 +1,20 @@
 // ============================================
 // HEADER COMPONENT
 // ============================================
-// Top navigation bar with logo, date, and user profile
+// Top navigation bar with logo, date, UI switcher, and user profile
 
 import { Clock } from 'lucide-react';
 import { ProfileDropdown } from './ProfileDropdown';
 import { HeaderAttendance } from './HeaderAttendance';
+import { UIVariantSwitcher, type UIVariant } from './UIVariantSwitcher';
 import { formatDateLong } from '@/lib/formatters';
 
-export function Header() {
+interface HeaderProps {
+  uiVariant?: UIVariant;
+  onUIVariantChange?: (variant: UIVariant) => void;
+}
+
+export function Header({ uiVariant, onUIVariantChange }: HeaderProps) {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 items-center justify-between px-4">
@@ -28,8 +34,19 @@ export function Header() {
           <HeaderAttendance />
         </div>
 
-        {/* User profile dropdown */}
-        <ProfileDropdown />
+        {/* Right section - UI switcher and profile */}
+        <div className="flex items-center gap-3">
+          {/* UI Variant Switcher - only show if props provided */}
+          {uiVariant && onUIVariantChange && (
+            <UIVariantSwitcher
+              variant={uiVariant}
+              onVariantChange={onUIVariantChange}
+            />
+          )}
+
+          {/* User profile dropdown */}
+          <ProfileDropdown />
+        </div>
       </div>
     </header>
   );

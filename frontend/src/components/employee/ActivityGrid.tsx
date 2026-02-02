@@ -23,7 +23,7 @@ export function ActivityGrid({
   disabledActivityIds = [],
 }: ActivityGridProps) {
   return (
-    <Card>
+    <Card className="h-[400px] flex flex-col">
       <CardHeader className="pb-2">
         <div className="flex items-center gap-4 px-4 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">
           <div className="w-3" />
@@ -33,7 +33,7 @@ export function ActivityGrid({
           <div className="w-10 text-center">Action</div>
         </div>
       </CardHeader>
-      <CardContent className="pt-0">
+      <CardContent className="pt-0 pb-5">
         <div className="space-y-1">
           {activities.map((activity) => {
             const isRunningThis = runningEntry?.activityId === activity.id;

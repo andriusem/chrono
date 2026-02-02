@@ -1,8 +1,8 @@
 // ============================================
 // MOCK DATA FOR CHRONO PROTOTYPE
 // ============================================
-// This data simulates what would come from the backend API.
-// It matches the PRD data model and provides realistic scenarios.
+// NGO domain context - reflecting nonprofit/association work
+// Inspired by ileya.fr (Guadeloupe social mediation organization)
 
 import type {
   User,
@@ -16,38 +16,38 @@ import type {
 // ============================================
 // USERS
 // ============================================
-// 4 users: 1 PM (Alice) and 3 employees (John, Sarah, Mike)
+// NGO team: 1 Coordinator (Marie) and 3 team members
 
 export const mockUsers: User[] = [
   {
     id: 'user-1',
-    email: 'alice.johnson@company.com',
-    displayName: 'Alice Johnson',
-    avatarUrl: 'https://api.dicebear.com/7.x/initials/svg?seed=AJ&backgroundColor=3B82F6',
+    email: 'marie.laurent@ileya.fr',
+    displayName: 'Marie Laurent',
+    avatarUrl: 'https://api.dicebear.com/7.x/initials/svg?seed=ML&backgroundColor=3878ff',
     role: 'pm',
     isActive: true,
   },
   {
     id: 'user-2',
-    email: 'john.doe@company.com',
-    displayName: 'John Doe',
-    avatarUrl: 'https://api.dicebear.com/7.x/initials/svg?seed=JD&backgroundColor=10B981',
+    email: 'jean.baptiste@ileya.fr',
+    displayName: 'Jean-Baptiste Morel',
+    avatarUrl: 'https://api.dicebear.com/7.x/initials/svg?seed=JM&backgroundColor=28a745',
     role: 'employee',
     isActive: true,
   },
   {
     id: 'user-3',
-    email: 'sarah.smith@company.com',
-    displayName: 'Sarah Smith',
-    avatarUrl: 'https://api.dicebear.com/7.x/initials/svg?seed=SS&backgroundColor=F59E0B',
+    email: 'camille.duval@ileya.fr',
+    displayName: 'Camille Duval',
+    avatarUrl: 'https://api.dicebear.com/7.x/initials/svg?seed=CD&backgroundColor=ffc107',
     role: 'employee',
     isActive: true,
   },
   {
     id: 'user-4',
-    email: 'mike.wilson@company.com',
-    displayName: 'Mike Wilson',
-    avatarUrl: 'https://api.dicebear.com/7.x/initials/svg?seed=MW&backgroundColor=EF4444',
+    email: 'thomas.martin@ileya.fr',
+    displayName: 'Thomas Martin',
+    avatarUrl: 'https://api.dicebear.com/7.x/initials/svg?seed=TM&backgroundColor=dc3545',
     role: 'employee',
     isActive: true,
   },
@@ -56,31 +56,39 @@ export const mockUsers: User[] = [
 // ============================================
 // PROJECTS
 // ============================================
-// 3 projects with different statuses
+// NGO programs and initiatives
 
 export const mockProjects: Project[] = [
   {
     id: 'project-1',
-    name: 'Website Redesign',
-    description: 'Complete overhaul of the company website with new branding and improved UX.',
+    name: 'Community Outreach Program',
+    description: 'Field visits and support services for local communities. Includes home visits, community center activities, and social support coordination.',
     status: 'active',
     createdAt: '2026-01-15T09:00:00Z',
     createdById: 'user-1',
   },
   {
     id: 'project-2',
-    name: 'Mobile App Development',
-    description: 'Building a companion mobile app for iOS and Android platforms.',
+    name: 'Youth Education Initiative',
+    description: 'Educational workshops and mentoring programs for young people aged 12-25. Focus on skills development and career guidance.',
     status: 'active',
     createdAt: '2026-01-10T10:00:00Z',
     createdById: 'user-1',
   },
   {
     id: 'project-3',
-    name: 'Q4 Marketing Campaign',
-    description: 'Year-end marketing push including social media, email, and paid ads.',
+    name: 'Cultural Heritage Festival 2026',
+    description: 'Annual celebration of local culture and traditions. Event planning, volunteer coordination, and community engagement.',
     status: 'active',
     createdAt: '2026-01-20T08:00:00Z',
+    createdById: 'user-1',
+  },
+  {
+    id: 'project-4',
+    name: 'Grant Reporting Q1 2026',
+    description: 'Quarterly reporting for funding partners. Documentation, impact metrics, and financial reporting.',
+    status: 'active',
+    createdAt: '2026-01-05T09:00:00Z',
     createdById: 'user-1',
   },
 ];
@@ -88,115 +96,144 @@ export const mockProjects: Project[] = [
 // ============================================
 // ACTIVITIES
 // ============================================
-// Multiple activities per project with distinct colors
+// NGO work activities with colors
 
 export const mockActivities: Activity[] = [
-  // Website Redesign activities
+  // Community Outreach activities
   {
     id: 'activity-1',
-    name: 'Design',
+    name: 'Field Work',
     projectId: 'project-1',
-    color: '#3B82F6', // Blue
+    color: '#3878ff', // Blue (accent)
     isArchived: false,
   },
   {
     id: 'activity-2',
-    name: 'Development',
+    name: 'Home Visits',
     projectId: 'project-1',
-    color: '#10B981', // Green
+    color: '#28a745', // Green
     isArchived: false,
   },
   {
     id: 'activity-3',
-    name: 'Testing',
+    name: 'Case Documentation',
     projectId: 'project-1',
-    color: '#F59E0B', // Amber
+    color: '#6c757d', // Gray
     isArchived: false,
   },
   {
     id: 'activity-4',
-    name: 'Communication',
+    name: 'Partner Meetings',
     projectId: 'project-1',
-    color: '#8B5CF6', // Purple
+    color: '#17a2b8', // Teal
     isArchived: false,
   },
   {
     id: 'activity-5',
-    name: 'Documentation',
+    name: 'Community Center',
     projectId: 'project-1',
-    color: '#EC4899', // Pink
+    color: '#ffc107', // Amber
     isArchived: false,
   },
-  // Mobile App activities
+  // Youth Education activities
   {
     id: 'activity-6',
-    name: 'iOS Development',
+    name: 'Workshop Facilitation',
     projectId: 'project-2',
-    color: '#6366F1', // Indigo
+    color: '#6f42c1', // Purple
     isArchived: false,
   },
   {
     id: 'activity-7',
-    name: 'Android Development',
+    name: 'Mentoring Sessions',
     projectId: 'project-2',
-    color: '#22C55E', // Green
+    color: '#20c997', // Teal-green
     isArchived: false,
   },
   {
     id: 'activity-8',
-    name: 'UI/UX Design',
+    name: 'Curriculum Development',
     projectId: 'project-2',
-    color: '#F97316', // Orange
+    color: '#fd7e14', // Orange
     isArchived: false,
   },
   {
     id: 'activity-9',
-    name: 'API Integration',
+    name: 'School Coordination',
     projectId: 'project-2',
-    color: '#14B8A6', // Teal
+    color: '#e83e8c', // Pink
     isArchived: false,
   },
   {
     id: 'activity-10',
-    name: 'QA Testing',
+    name: 'Youth Events',
     projectId: 'project-2',
-    color: '#EF4444', // Red
+    color: '#007bff', // Blue
     isArchived: false,
   },
-  // Marketing Campaign activities
+  // Cultural Festival activities
   {
     id: 'activity-11',
-    name: 'Content Creation',
+    name: 'Event Planning',
     projectId: 'project-3',
-    color: '#A855F7', // Purple
+    color: '#dc3545', // Red
     isArchived: false,
   },
   {
     id: 'activity-12',
-    name: 'Social Media',
+    name: 'Volunteer Coordination',
     projectId: 'project-3',
-    color: '#0EA5E9', // Sky
+    color: '#28a745', // Green
     isArchived: false,
   },
   {
     id: 'activity-13',
-    name: 'Email Marketing',
+    name: 'Vendor Relations',
     projectId: 'project-3',
-    color: '#84CC16', // Lime
+    color: '#6610f2', // Indigo
     isArchived: false,
   },
   {
     id: 'activity-14',
-    name: 'Paid Advertising',
+    name: 'Marketing & Promotion',
     projectId: 'project-3',
-    color: '#F43F5E', // Rose
+    color: '#e83e8c', // Pink
     isArchived: false,
   },
   {
     id: 'activity-15',
-    name: 'Analytics & Reporting',
+    name: 'Logistics',
     projectId: 'project-3',
-    color: '#64748B', // Slate
+    color: '#795548', // Brown
+    isArchived: false,
+  },
+  // Grant Reporting activities
+  {
+    id: 'activity-16',
+    name: 'Data Collection',
+    projectId: 'project-4',
+    color: '#607d8b', // Blue-gray
+    isArchived: false,
+  },
+  {
+    id: 'activity-17',
+    name: 'Report Writing',
+    projectId: 'project-4',
+    color: '#3878ff', // Accent blue
+    isArchived: false,
+  },
+  {
+    id: 'activity-18',
+    name: 'Financial Documentation',
+    projectId: 'project-4',
+    color: '#4caf50', // Material green
+    isArchived: false,
+  },
+  {
+    id: 'activity-19',
+    name: 'Stakeholder Communication',
+    projectId: 'project-4',
+    color: '#ff9800', // Material orange
     isArchived: false,
   },
 ];
@@ -207,7 +244,7 @@ export const mockActivities: Activity[] = [
 // Who works on what
 
 export const mockProjectAssignments: ProjectAssignment[] = [
-  // John Doe: Website Redesign, Mobile App
+  // Jean-Baptiste: Community Outreach, Youth Education
   {
     projectId: 'project-1',
     userId: 'user-2',
@@ -220,7 +257,7 @@ export const mockProjectAssignments: ProjectAssignment[] = [
     assignedById: 'user-1',
     assignedAt: '2026-01-10T11:00:00Z',
   },
-  // Sarah Smith: Website Redesign, Marketing Campaign
+  // Camille: Community Outreach, Cultural Festival
   {
     projectId: 'project-1',
     userId: 'user-3',
@@ -233,12 +270,18 @@ export const mockProjectAssignments: ProjectAssignment[] = [
     assignedById: 'user-1',
     assignedAt: '2026-01-20T08:30:00Z',
   },
-  // Mike Wilson: Mobile App only
+  // Thomas: Youth Education, Grant Reporting
   {
     projectId: 'project-2',
     userId: 'user-4',
     assignedById: 'user-1',
     assignedAt: '2026-01-10T11:00:00Z',
+  },
+  {
+    projectId: 'project-4',
+    userId: 'user-4',
+    assignedById: 'user-1',
+    assignedAt: '2026-01-05T09:30:00Z',
   },
 ];
 
@@ -257,193 +300,193 @@ const threeWeeksAgoStr = new Date(today.getTime() - 21 * 24 * 60 * 60 * 1000).to
 const lastWeekStr = new Date(today.getTime() - 8 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
 export const mockTimeEntries: TimeEntry[] = [
-  // John's entries - including one RUNNING timer
+  // Jean-Baptiste's entries - including one RUNNING timer
   {
     id: 'entry-1',
     userId: 'user-2',
-    activityId: 'activity-2', // Development
+    activityId: 'activity-2', // Home Visits
     projectId: 'project-1',
     startTime: `${todayStr}T09:00:00Z`,
     endTime: `${todayStr}T11:30:00Z`,
     durationMinutes: 150,
     status: 'completed',
-    comments: 'Implemented homepage hero section with responsive design',
+    comments: 'Visited 3 families in Pointe-à-Pitre. Discussed social support options and collected documentation.',
     isDeleted: false,
   },
   {
     id: 'entry-2',
     userId: 'user-2',
-    activityId: 'activity-4', // Communication
+    activityId: 'activity-4', // Partner Meetings
     projectId: 'project-1',
     startTime: `${todayStr}T11:45:00Z`,
-    endTime: `${todayStr}T12:15:00Z`,
-    durationMinutes: 30,
+    endTime: `${todayStr}T12:30:00Z`,
+    durationMinutes: 45,
     status: 'completed',
-    comments: 'Team standup and design review meeting',
+    comments: 'Meeting with social services coordinator to discuss case referrals',
     isDeleted: false,
   },
   {
     id: 'entry-3',
     userId: 'user-2',
-    activityId: 'activity-2', // Development
-    projectId: 'project-1',
-    startTime: `${todayStr}T13:00:00Z`,
+    activityId: 'activity-7', // Mentoring Sessions
+    projectId: 'project-2',
+    startTime: `${todayStr}T14:00:00Z`,
     // No endTime - this is the RUNNING timer!
     status: 'running',
     isDeleted: false,
     lastHeartbeat: new Date().toISOString(),
   },
-  // John's yesterday entries
+  // Jean-Baptiste's yesterday entries
   {
     id: 'entry-4',
     userId: 'user-2',
-    activityId: 'activity-6', // iOS Development
+    activityId: 'activity-6', // Workshop Facilitation
     projectId: 'project-2',
     startTime: `${yesterdayStr}T09:00:00Z`,
     endTime: `${yesterdayStr}T12:00:00Z`,
     durationMinutes: 180,
     status: 'completed',
-    comments: 'Set up SwiftUI project structure and navigation',
+    comments: 'CV writing workshop with 12 participants. Good engagement and practical exercises.',
     isDeleted: false,
   },
   {
     id: 'entry-5',
     userId: 'user-2',
-    activityId: 'activity-9', // API Integration
-    projectId: 'project-2',
+    activityId: 'activity-3', // Case Documentation
+    projectId: 'project-1',
     startTime: `${yesterdayStr}T13:30:00Z`,
     endTime: `${yesterdayStr}T17:00:00Z`,
     durationMinutes: 210,
     status: 'completed',
-    comments: 'Integrated authentication API endpoints',
+    comments: 'Updated case files for recent home visits. Prepared reports for partner agencies.',
     isDeleted: false,
   },
-  // Sarah's entries
+  // Camille's entries
   {
     id: 'entry-6',
     userId: 'user-3',
-    activityId: 'activity-1', // Design
+    activityId: 'activity-1', // Field Work
     projectId: 'project-1',
     startTime: `${todayStr}T08:30:00Z`,
     endTime: `${todayStr}T12:00:00Z`,
     durationMinutes: 210,
     status: 'completed',
-    comments: 'Created wireframes for product pages',
+    comments: 'Community center support session. Helped with administrative paperwork and benefit applications.',
     isDeleted: false,
   },
   {
     id: 'entry-7',
     userId: 'user-3',
-    activityId: 'activity-11', // Content Creation
+    activityId: 'activity-11', // Event Planning
     projectId: 'project-3',
     startTime: `${todayStr}T13:00:00Z`,
     endTime: `${todayStr}T15:30:00Z`,
     durationMinutes: 150,
     status: 'completed',
-    comments: 'Wrote blog posts for the campaign launch',
+    comments: 'Festival planning meeting. Finalized venue layout and entertainment schedule.',
     isDeleted: false,
   },
-  // Mike's entries
+  // Thomas's entries
   {
     id: 'entry-8',
     userId: 'user-4',
-    activityId: 'activity-7', // Android Development
+    activityId: 'activity-8', // Curriculum Development
     projectId: 'project-2',
     startTime: `${todayStr}T09:00:00Z`,
     endTime: `${todayStr}T12:30:00Z`,
     durationMinutes: 210,
     status: 'completed',
-    comments: 'Implemented Jetpack Compose UI components',
+    comments: 'Developed new module on digital literacy. Created lesson plans and materials.',
     isDeleted: false,
   },
   {
     id: 'entry-9',
     userId: 'user-4',
-    activityId: 'activity-10', // QA Testing
-    projectId: 'project-2',
+    activityId: 'activity-17', // Report Writing
+    projectId: 'project-4',
     startTime: `${todayStr}T14:00:00Z`,
     endTime: `${todayStr}T16:00:00Z`,
     durationMinutes: 120,
     status: 'completed',
-    comments: 'Tested login flow and found 2 bugs',
+    comments: 'Drafted Q1 impact report narrative section. Compiled success stories.',
     isDeleted: false,
   },
   // ============================================
   // HISTORICAL ENTRIES (for monthly view)
   // ============================================
-  // John's entries from last week
+  // Jean-Baptiste's entries from last week
   {
     id: 'entry-10',
     userId: 'user-2',
-    activityId: 'activity-2', // Development
+    activityId: 'activity-2', // Home Visits
     projectId: 'project-1',
     startTime: `${lastWeekStr}T09:00:00Z`,
     endTime: `${lastWeekStr}T12:00:00Z`,
     durationMinutes: 180,
     status: 'completed',
-    comments: 'Built navigation component and footer',
+    comments: 'Follow-up visits with families from previous week. Good progress on benefit applications.',
     isDeleted: false,
   },
   {
     id: 'entry-11',
     userId: 'user-2',
-    activityId: 'activity-3', // Testing
-    projectId: 'project-1',
+    activityId: 'activity-6', // Workshop Facilitation
+    projectId: 'project-2',
     startTime: `${lastWeekStr}T13:00:00Z`,
     endTime: `${lastWeekStr}T15:30:00Z`,
     durationMinutes: 150,
     status: 'completed',
-    comments: 'Unit tests for auth module',
+    comments: 'Job interview preparation workshop. Role-playing exercises.',
     isDeleted: false,
   },
-  // John's entries from 2 weeks ago
+  // Jean-Baptiste's entries from 2 weeks ago
   {
     id: 'entry-12',
     userId: 'user-2',
-    activityId: 'activity-1', // Design
+    activityId: 'activity-5', // Community Center
     projectId: 'project-1',
     startTime: `${twoWeeksAgoStr}T10:00:00Z`,
     endTime: `${twoWeeksAgoStr}T14:00:00Z`,
     durationMinutes: 240,
     status: 'completed',
-    comments: 'Initial design review with stakeholders',
+    comments: 'Drop-in support day at community center. Assisted 8 people with various needs.',
     isDeleted: false,
   },
   {
     id: 'entry-13',
     userId: 'user-2',
-    activityId: 'activity-6', // iOS Development
+    activityId: 'activity-7', // Mentoring Sessions
     projectId: 'project-2',
     startTime: `${twoWeeksAgoStr}T14:30:00Z`,
     endTime: `${twoWeeksAgoStr}T17:30:00Z`,
     durationMinutes: 180,
     status: 'completed',
-    comments: 'Project kickoff and environment setup',
+    comments: 'One-on-one mentoring with 3 young people. Career exploration and goal setting.',
     isDeleted: false,
   },
-  // John's entries from 3 weeks ago
+  // Jean-Baptiste's entries from 3 weeks ago
   {
     id: 'entry-14',
     userId: 'user-2',
-    activityId: 'activity-4', // Communication
+    activityId: 'activity-4', // Partner Meetings
     projectId: 'project-1',
     startTime: `${threeWeeksAgoStr}T09:00:00Z`,
     endTime: `${threeWeeksAgoStr}T11:00:00Z`,
     durationMinutes: 120,
     status: 'completed',
-    comments: 'Sprint planning meeting',
+    comments: 'Monthly coordination meeting with partner organizations.',
     isDeleted: false,
   },
   {
     id: 'entry-15',
     userId: 'user-2',
-    activityId: 'activity-2', // Development
+    activityId: 'activity-3', // Case Documentation
     projectId: 'project-1',
     startTime: `${threeWeeksAgoStr}T13:00:00Z`,
     endTime: `${threeWeeksAgoStr}T17:00:00Z`,
     durationMinutes: 240,
     status: 'completed',
-    comments: 'Initial codebase setup and boilerplate',
+    comments: 'End of month reporting and case file updates.',
     isDeleted: false,
   },
 ];
@@ -453,7 +496,7 @@ export const mockTimeEntries: TimeEntry[] = [
 // ============================================
 
 export const mockAttendance: Attendance[] = [
-  // John's attendance
+  // Jean-Baptiste's attendance
   {
     id: 'att-1',
     userId: 'user-2',
@@ -466,20 +509,20 @@ export const mockAttendance: Attendance[] = [
     id: 'att-2',
     userId: 'user-2',
     date: yesterdayStr,
-    clockInTime: '09:00',
+    clockInTime: '08:30',
     clockOutTime: '17:30',
     isDeleted: false,
   },
-  // Sarah's attendance
+  // Camille's attendance
   {
     id: 'att-3',
     userId: 'user-3',
     date: todayStr,
-    clockInTime: '08:30',
+    clockInTime: '08:15',
     clockOutTime: '16:00',
     isDeleted: false,
   },
-  // Mike's attendance
+  // Thomas's attendance
   {
     id: 'att-4',
     userId: 'user-4',
