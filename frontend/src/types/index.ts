@@ -38,12 +38,15 @@ export interface Project {
 // ACTIVITY TYPES
 // ============================================
 
+export type KanbanStatus = 'todo' | 'in_progress' | 'done';
+
 export interface Activity {
   id: string;
   name: string;
   projectId: string;
   color: string; // Hex color code like "#3B82F6"
   isArchived: boolean;
+  kanbanStatus?: KanbanStatus; // For Kanban board columns, defaults to 'todo'
 }
 
 // ============================================

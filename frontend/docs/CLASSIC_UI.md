@@ -181,9 +181,11 @@ Editable table showing time entries with inline editing.
 ```
 
 #### TimesheetKanbanView
-Card-based view of activities with timer controls.
+Card-based view with 3-column drag-and-drop Kanban board.
 
 **Features:**
+- Three fixed columns: **To Do**, **In Progress**, **Done**
+- Drag-and-drop cards between columns (native HTML5)
 - Activity cards with color coding
 - Live timer display when running
 - Today's total duration per activity
@@ -197,6 +199,13 @@ Card-based view of activities with timer controls.
   onStopTimer={(entryId, comments) => stop(entryId, comments)}
 />
 ```
+
+**Kanban Columns:**
+| Column | Status Value | Description |
+|--------|--------------|-------------|
+| To Do | `todo` | Activities not yet started |
+| In Progress | `in_progress` | Active work items |
+| Done | `done` | Completed activities |
 
 #### TimesheetGridView
 Weekly calendar grid view (Odoo-style timesheet grid).

@@ -5,7 +5,7 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Project, Activity, ProjectAssignment, ProjectStatus } from '@/types';
+import type { Project, Activity, ProjectAssignment, ProjectStatus, KanbanStatus } from '@/types';
 import {
   mockProjects,
   mockActivities,
@@ -27,6 +27,7 @@ interface ProjectState {
   // Activity actions
   createActivity: (activity: Omit<Activity, 'id'>) => Activity;
   updateActivity: (id: string, updates: Partial<Activity>) => void;
+  updateActivityKanbanStatus: (id: string, status: KanbanStatus) => void;
   archiveActivity: (id: string) => void;
 
   // Assignment actions
@@ -116,6 +117,14 @@ export const useProjectStore = create<ProjectState>()(
         set((state) => ({
           activities: state.activities.map((a) =>
             a.id === id ? { ...a, ...updates } : a
+          ),
+        }));
+      },
+
+      updateActivityKanbanStatus: (id, status) => {
+        set((state) => ({
+          activities: state.activities.map((a) =>
+            a.id === id ? { ...a, kanbanStatus: status } : a
           ),
         }));
       },
