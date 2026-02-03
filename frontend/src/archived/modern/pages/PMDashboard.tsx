@@ -6,8 +6,7 @@
 import { useState, useMemo } from 'react';
 import { Plus, FolderKanban, Archive } from 'lucide-react';
 import { toast } from 'sonner';
-import { MainLayout } from '@/components/layout/MainLayout';
-import { ProjectList } from '@/components/pm/ProjectList';
+import { ProjectList } from '@/archived/modern/components/pm/ProjectList';
 import { CreateProjectModal } from '@/components/modals/CreateProjectModal';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -117,7 +116,7 @@ export function PMDashboard() {
   };
 
   return (
-    <MainLayout>
+    <>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -220,6 +219,7 @@ export function PMDashboard() {
         onClose={() => setShowCreateModal(false)}
         onSubmit={handleCreateProject}
       />
-    </MainLayout>
+    </>
   );
 }
+

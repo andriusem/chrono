@@ -5,12 +5,11 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import { toast } from 'sonner';
-import { MainLayout } from '@/components/layout/MainLayout';
-import { ProjectSelector } from '@/components/employee/ProjectSelector';
-import { ActivityGrid } from '@/components/employee/ActivityGrid';
-import { CurrentActivityCard } from '@/components/employee/CurrentActivityCard';
-import { EmptyState } from '@/components/employee/EmptyState';
-import { WeeklyMonthlyLog } from '@/components/employee/WeeklyMonthlyLog';
+import { ProjectSelector } from '@/archived/modern/components/employee/ProjectSelector';
+import { ActivityGrid } from '@/archived/modern/components/employee/ActivityGrid';
+import { CurrentActivityCard } from '@/archived/modern/components/employee/CurrentActivityCard';
+import { EmptyState } from '@/archived/modern/components/employee/EmptyState';
+import { WeeklyMonthlyLog } from '@/archived/modern/components/employee/WeeklyMonthlyLog';
 import { StartActivityModal } from '@/components/modals/StartActivityModal';
 import { StopActivityModal } from '@/components/modals/StopActivityModal';
 import { EditTimeEntryModal } from '@/components/modals/EditTimeEntryModal';
@@ -198,7 +197,7 @@ export function EmployeeDashboard() {
     : null;
 
   return (
-    <MainLayout>
+    <>
       <div className="space-y-6">
         {/* Project Selector */}
         {userProjects.length > 0 && (
@@ -287,6 +286,7 @@ export function EmployeeDashboard() {
         runningActivity={runningActivity || null}
         message={conflictModalMessage || undefined}
       />
-    </MainLayout>
+    </>
   );
 }
+

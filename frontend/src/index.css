@@ -289,8 +289,10 @@
 .odoo-filter-bar {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  row-gap: 0.5rem;
+  padding: 0.5rem 1rem;
   background-color: var(--odoo-white);
   border-bottom: 1px solid var(--odoo-gray-200);
 }
@@ -331,7 +333,7 @@
   outline: none;
   font-size: 0.875rem;
   padding: 0.25rem;
-  width: 200px;
+  width: min(240px, 50vw);
 }
 
 .odoo-search input::placeholder {

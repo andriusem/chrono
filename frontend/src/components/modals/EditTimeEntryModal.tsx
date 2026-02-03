@@ -17,7 +17,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { format, parseISO } from 'date-fns';
+import { format, parseISO, differenceInMinutes } from 'date-fns';
 import type { TimeEntry, Activity } from '@/types';
 
 interface EditTimeEntryModalProps {
@@ -65,10 +65,18 @@ export function EditTimeEntryModal({
       return;
     }
 
-    // Reconstruct ISO datetime strings (same date, new times)
     const date = format(parseISO(entry.startTime), 'yyyy-MM-dd');
     const newStartTime = `${date}T${startTime}:00Z`;
     const newEndTime = `${date}T${endTime}:00Z`;
+    const minutes = differenceInMinutes(
+      parseISO(newEndTime),
+      parseISO(newStartTime)
+    );
+
+    if (minutes < 15) {
+      setError('Time entries must be at least 15 minutes long.');
+      return;
+    }
 
     onSave({
       startTime: newStartTime,

@@ -11,6 +11,8 @@
 
 This frontend is a **stakeholder demonstration prototype** implementing the complete UI/UX for the Chrono time tracking application. It uses mock data and localStorage persistence to simulate full functionality without a backend.
 
+**Current UI state:** The Classic (Odoo-style) UI is the active interface. The Modern UI has been archived under `src/archived/modern` for optional local use.
+
 ### Key Features Implemented
 
 | Feature | Description |
@@ -47,51 +49,23 @@ This frontend is a **stakeholder demonstration prototype** implementing the comp
 ```
 frontend/
 ├── src/
-│   ├── App.tsx              # Router configuration & route guards
+│   ├── App.tsx              # Classic (Odoo-style) router
 │   ├── main.tsx             # React entry point
 │   ├── index.css            # Global styles & Tailwind imports
 │   │
+│   ├── archived/modern/     # Archived Modern UI (optional local use)
+│   │   ├── App.modern.tsx
+│   │   ├── pages/
+│   │   └── components/
+│   │
 │   ├── components/
-│   │   ├── employee/        # Employee-specific components
-│   │   │   ├── ActivityGrid.tsx      # List container for activity rows
-│   │   │   ├── ActivityTile.tsx      # Row-based timer control
-│   │   │   ├── AttendanceCard.tsx    # Clock-in/out display
-│   │   │   ├── EmptyState.tsx        # No projects message
-│   │   │   ├── ProjectSelector.tsx   # Project dropdown
-│   │   │   ├── TodaysLog.tsx         # Today's time entries list
-│   │   │   ├── WeeklyMonthlyLog.tsx  # Week/month grouped time history
-│   │   │   └── CurrentActivityCard.tsx # Running activity with comment editor
-│   │   │
-│   │   ├── pm/              # Project Manager components
-│   │   │   ├── FilterBar.tsx         # Date/employee/activity filters
-│   │   │   ├── ProjectCard.tsx       # Project summary card
-│   │   │   ├── ProjectList.tsx       # Grid of project cards
-│   │   │   ├── TeamAssignment.tsx    # Assign employees UI
-│   │   │   └── TimeEntryTable.tsx    # Sortable time entries table
-│   │   │
-│   │   ├── modals/          # Dialog components
-│   │   │   ├── AttendanceModal.tsx       # Edit attendance
-│   │   │   ├── CreateActivityModal.tsx   # New activity form
-│   │   │   ├── CreateProjectModal.tsx    # New project form
-│   │   │   ├── EditTimeEntryModal.tsx    # Edit time entry
-│   │   │   ├── StartActivityModal.tsx    # "Ready to start?" prompt
-│   │   │   ├── StopActivityModal.tsx     # Pause/Finish with comments
-│   │   │   └── TimerConflictModal.tsx    # Timer already running error
-│   │   │
-│   │   ├── layout/          # Layout components
-│   │   │   ├── Header.tsx            # App header with user menu
-│   │   │   ├── HeaderAttendance.tsx  # Compact clock-in/out in header
-│   │   │   └── Sidebar.tsx           # Navigation sidebar
-│   │   │
-│   │   └── ui/              # shadcn/ui components (16 components)
-│   │       ├── button.tsx, card.tsx, dialog.tsx, etc.
+│   │   ├── modals/          # Dialog components (shared)
+│   │   ├── odoo-style/      # Classic UI components
+│   │   └── ui/              # shadcn/ui components
 │   │
 │   ├── pages/
-│   │   ├── LoginPage.tsx           # User selection (demo)
-│   │   ├── EmployeeDashboard.tsx   # Main employee view
-│   │   ├── PMDashboard.tsx         # Project manager home
-│   │   ├── ProjectTimeReport.tsx   # Time entries for a project
-│   │   └── ProjectSettings.tsx     # Edit project, manage team
+│   │   ├── LoginPage.tsx       # Classic login
+│   │   └── odoo-style/         # Classic dashboards
 │   │
 │   ├── store/               # Zustand stores (localStorage persisted)
 │   │   ├── authStore.ts           # Current user & login state
@@ -200,19 +174,21 @@ interface AttendanceState {
 ```
 /login              → LoginPage (public)
 /                   → DashboardRouter (protected)
-                      ├─ PM → PMDashboard
-                      └─ Employee → EmployeeDashboard
-/projects/:id       → ProjectTimeReport (protected)
-/projects/:id/settings → ProjectSettings (protected)
+                      ├─ PM → OdooPMDashboard
+                      └─ Employee → OdooEmployeeDashboard
 ```
 
 **Route Guards:**
 - `ProtectedRoute` - Redirects to `/login` if not authenticated
 - `DashboardRouter` - Routes to correct dashboard based on user role
 
+**Archived Modern UI:** routes for the modern prototype live in `src/archived/modern/App.modern.tsx`.
+
 ---
 
 ## Key Components
+
+**Note:** The components below live in the archived Modern UI (`src/archived/modern`) and are kept for optional local use.
 
 ### ActivityTile
 
@@ -406,6 +382,9 @@ All delete operations set `isDeleted = true` rather than removing records.
 ### 5. Attendance Validation
 Clock-out time must be >= clock-in time.
 
+### 6. Minimum Entry Duration
+Time entries must be at least **15 minutes** long.
+
 ---
 
 ## UI Components (shadcn/ui)
@@ -465,5 +444,5 @@ When connecting to the real backend API:
 - **No backend required** - Prototype runs entirely client-side
 - **State persists** in localStorage across refreshes
 - **Reset state** by clearing localStorage keys: `chrono-auth`, `chrono-projects`, `chrono-time-entries`, `chrono-attendance`
-- **Switch roles** via user menu dropdown (demo feature)
+- **Switch roles** via user menu dropdown (demo feature, archived Modern UI only)
 - **Path aliases** configured: `@/` maps to `src/`

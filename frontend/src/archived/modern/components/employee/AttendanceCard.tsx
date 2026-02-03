@@ -68,3 +68,4 @@ export function AttendanceCard({ attendance, onOpenModal }: AttendanceCardProps)
     </Card>
   );
 }
+

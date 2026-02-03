@@ -4,7 +4,7 @@ This document describes the Classic UI variant for Chrono, inspired by Odoo's Ti
 
 ## Overview
 
-Chrono offers two UI styles that stakeholders can compare:
+Chrono now ships with the Classic (Odoo-style) UI as the active interface. The Modern UI has been archived at `src/archived/modern` for optional local use.
 
 | Feature | Modern UI | Classic (Odoo-style) UI |
 |---------|-----------|------------------------|
@@ -32,21 +32,14 @@ The Classic UI uses colors inspired by [ileya.fr](https://ileya.fr), a Guadeloup
 - **Danger (Red)**: `#dc3545` - Errors, delete actions
 - **Info (Teal)**: `#17a2b8` - Information badges
 
-## Switching Between UI Styles
-
-Users can toggle between Modern and Classic UI using the **UI Style** button in the header:
-
-1. Look for the button showing "Modern" or "Classic" in the top-right area
-2. Click to open the dropdown
-3. Select your preferred style
-4. The preference is saved to localStorage (`chrono-ui-variant`)
-
-Both UIs share the same data stores (Zustand), so data stays synchronized.
-
 ## File Structure
 
 ```
 frontend/src/
+├── archived/modern/               # Archived Modern UI (optional local use)
+│   ├── App.modern.tsx
+│   ├── pages/
+│   └── components/
 ├── components/odoo-style/
 │   ├── shared/                    # Shared Odoo-style components
 │   │   ├── ViewSwitcher.tsx       # List/Kanban/Calendar toggle
@@ -68,13 +61,10 @@ frontend/src/
 │       ├── ProjectFormView.tsx    # Project detail form
 │       └── index.ts
 │
-├── pages/odoo-style/
-│   ├── OdooEmployeeDashboard.tsx  # Main employee view
-│   ├── OdooPMDashboard.tsx        # PM project management
-│   └── index.ts
-│
-└── components/layout/
-    └── UIVariantSwitcher.tsx      # Toggle between UI styles
+└── pages/odoo-style/
+    ├── OdooEmployeeDashboard.tsx  # Main employee view
+    ├── OdooPMDashboard.tsx        # PM project management
+    └── index.ts
 ```
 
 ## Components Reference

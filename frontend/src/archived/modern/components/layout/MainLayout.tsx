@@ -54,3 +54,4 @@ export function MainLayout({ children, uiVariant, onUIVariantChange }: MainLayou
     </div>
   );
 }
+

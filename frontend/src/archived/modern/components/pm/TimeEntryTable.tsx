@@ -164,3 +164,4 @@ export function TimeEntryTable({ entries }: TimeEntryTableProps) {
     </div>
   );
 }
+

@@ -246,10 +246,10 @@ export function OdooEmployeeDashboard() {
 
       {/* Stats Row */}
       <div className="bg-white border-b border-[var(--odoo-gray-200)] px-4 py-3">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           {/* Project Selector */}
-          <div className="flex items-center gap-3">
-            <label className="text-sm font-medium text-[var(--odoo-gray-600)]">
+          <div className="flex flex-wrap items-center gap-2">
+            <label className="text-xs font-medium text-[var(--odoo-gray-600)]">
               Project:
             </label>
             <select

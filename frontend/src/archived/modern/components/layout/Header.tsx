@@ -51,3 +51,4 @@ export function Header({ uiVariant, onUIVariantChange }: HeaderProps) {
     </header>
   );
 }
+

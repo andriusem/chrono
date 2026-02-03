@@ -7,8 +7,7 @@ import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Save, Plus, Trash2, BarChart3 } from 'lucide-react';
 import { toast } from 'sonner';
-import { MainLayout } from '@/components/layout/MainLayout';
-import { TeamAssignment } from '@/components/pm/TeamAssignment';
+import { TeamAssignment } from '@/archived/modern/components/pm/TeamAssignment';
 import { CreateActivityModal } from '@/components/modals/CreateActivityModal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -104,20 +103,18 @@ export function ProjectSettings() {
 
   if (!project) {
     return (
-      <MainLayout>
-        <div className="text-center py-12">
-          <h2 className="text-xl font-semibold mb-2">Project Not Found</h2>
-          <p className="text-muted-foreground mb-4">
-            The project you're looking for doesn't exist.
-          </p>
-          <Button onClick={() => navigate('/')}>Go Back</Button>
-        </div>
-      </MainLayout>
+      <div className="text-center py-12">
+        <h2 className="text-xl font-semibold mb-2">Project Not Found</h2>
+        <p className="text-muted-foreground mb-4">
+          The project you're looking for doesn't exist.
+        </p>
+        <Button onClick={() => navigate('/')}>Go Back</Button>
+      </div>
     );
   }
 
   return (
-    <MainLayout>
+    <>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -276,6 +273,7 @@ export function ProjectSettings() {
         onClose={() => setShowActivityModal(false)}
         onSubmit={handleCreateActivity}
       />
-    </MainLayout>
+    </>
   );
 }
+

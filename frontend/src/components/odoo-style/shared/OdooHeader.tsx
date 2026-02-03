@@ -68,9 +68,9 @@ export function OdooHeader({
   return (
     <>
       <div className="odoo-header odoo-header-fixed">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           {/* Left side: Breadcrumbs and Title */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 min-w-0">
             {breadcrumbs.length > 0 && (
               <>
                 {breadcrumbs.map((crumb, index) => (
@@ -78,12 +78,12 @@ export function OdooHeader({
                     {crumb.onClick || crumb.href ? (
                       <button
                         onClick={crumb.onClick}
-                        className="text-sm text-[var(--odoo-gray-600)] hover:text-[var(--odoo-accent)]"
+                        className="text-xs text-[var(--odoo-gray-600)] hover:text-[var(--odoo-accent)]"
                       >
                         {crumb.label}
                       </button>
                     ) : (
-                      <span className="text-sm text-[var(--odoo-gray-600)]">
+                      <span className="text-xs text-[var(--odoo-gray-600)]">
                         {crumb.label}
                       </span>
                     )}
@@ -92,13 +92,13 @@ export function OdooHeader({
                 ))}
               </>
             )}
-            <h1 className="text-lg font-semibold text-[var(--odoo-gray-800)]">
+            <h1 className="text-base font-semibold text-[var(--odoo-gray-800)] truncate">
               {title}
             </h1>
           </div>
 
           {/* Right side: Clock In/Out, Actions, View Switcher */}
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2 md:gap-3">
             {/* Clock In/Out (employees only) */}
             {isEmployee && (
               <button

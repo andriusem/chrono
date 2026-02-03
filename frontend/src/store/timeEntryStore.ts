@@ -9,6 +9,8 @@ import type { TimeEntry, TimerStatus } from '@/types';
 import { mockTimeEntries } from '@/data/mockData';
 import { differenceInMinutes, parseISO, format } from 'date-fns';
 
+const MIN_ENTRY_MINUTES = 15;
+
 interface TimeEntryState {
   // Data
   entries: TimeEntry[];
@@ -166,7 +168,7 @@ export const useTimeEntryStore = create<TimeEntryState>()(
               return {
                 ...e,
                 endTime: now.toISOString(),
-                durationMinutes: Math.max(1, durationMinutes), // Minimum 1 minute
+                durationMinutes: Math.max(MIN_ENTRY_MINUTES, durationMinutes), // Minimum 15 minutes
                 status: 'completed' as TimerStatus,
                 comments: comments || e.comments,
               };
@@ -191,7 +193,7 @@ export const useTimeEntryStore = create<TimeEntryState>()(
                   const startTime = parseISO(updated.startTime);
                   const endTime = parseISO(updated.endTime);
                   updated.durationMinutes = Math.max(
-                    1,
+                    MIN_ENTRY_MINUTES,
                     differenceInMinutes(endTime, startTime)
                   );
                 }
