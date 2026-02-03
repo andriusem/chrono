@@ -61,3 +61,8 @@ Thumbs.db
 
 # Azure
 .azure/
+
+# Local tooling artifacts
+.claude/
+nul
+frontend/nul

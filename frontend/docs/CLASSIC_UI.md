@@ -253,6 +253,7 @@ Table showing projects with statistics.
 - Hours this week per project
 - Team size and activity count
 - Archive/Restore actions
+- Supports grouping by **date**, **activity**, or **employee** (via FilterBar)
 - Sum footer with totals
 
 ```tsx
@@ -262,6 +263,7 @@ Table showing projects with statistics.
   onArchive={(id) => archiveProject(id)}
   onRestore={(id) => restoreProject(id)}
   onSettings={(id) => openSettings(id)}
+  groupBy={groupBy}
 />
 ```
 
@@ -280,6 +282,44 @@ Detailed project view with tabbed interface.
   project={project}
   onBack={() => goBack()}
   onStatusChange={(status) => updateStatus(status)}
+/>
+```
+
+## Pages
+
+### OdooPMDashboard
+PM project management view with Odoo-style filters and project list grouping.
+
+**Features:**
+- Search + Active/Archived filters
+- Group by **Date**, **Activity**, or **Employee**
+- Grouped project list in `ProjectListView`
+
+```tsx
+<OdooHeader title="Projects" breadcrumbs={[{ label: 'Projects' }]}> 
+  <FilterBar
+    searchPlaceholder="Search projects..."
+    searchValue={searchQuery}
+    onSearchChange={setSearchQuery}
+    filters={filters}
+    onFilterToggle={handleFilterToggle}
+    groupByOptions={[
+      { id: 'date', label: 'Date' },
+      { id: 'activity', label: 'Activity' },
+      { id: 'employee', label: 'Employee' },
+    ]}
+    currentGroupBy={groupBy}
+    onGroupByChange={setGroupBy}
+  />
+</OdooHeader>
+
+<ProjectListView
+  projects={filteredProjects}
+  onProjectClick={setSelectedProjectId}
+  onArchive={archiveProject}
+  onRestore={restoreProject}
+  onSettings={setSelectedProjectId}
+  groupBy={groupBy}
 />
 ```
 

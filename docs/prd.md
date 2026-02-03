@@ -685,7 +685,7 @@ All data stored in Microsoft ecosystem (Azure SQL Database).
 
 - **Single Activity Only:** An employee can only have ONE active timer running at a time
 - If employee tries to start a new activity while another is running, prompt them to stop/pause the current one first
-- **No Minimum Duration:** No minimum time entry requirement
+- **Minimum Duration:** **15 minutes** - entries must be at least 15 minutes long
 - **Heartbeat Required:** Running timers must send heartbeat every 30 seconds
 - **Midnight Split:** Timers crossing midnight auto-split into two entries
 

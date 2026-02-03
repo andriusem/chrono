@@ -22,6 +22,7 @@ export function OdooPMDashboard() {
   // View state
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [groupBy, setGroupBy] = useState<string | null>(null);
 
   // Filter state
   const [searchQuery, setSearchQuery] = useState('');
@@ -66,6 +67,12 @@ export function OdooPMDashboard() {
       label: 'Show Archived',
       isActive: showArchived,
     },
+  ];
+
+  const groupByOptions = [
+    { id: 'date', label: 'Date' },
+    { id: 'activity', label: 'Activity' },
+    { id: 'employee', label: 'Employee' },
   ];
 
   const handleFilterToggle = (filterId: string) => {
@@ -130,6 +137,9 @@ export function OdooPMDashboard() {
           onSearchChange={setSearchQuery}
           filters={filters}
           onFilterToggle={handleFilterToggle}
+          groupByOptions={groupByOptions}
+          currentGroupBy={groupBy ?? undefined}
+          onGroupByChange={setGroupBy}
         />
       </OdooHeader>
 
@@ -141,6 +151,7 @@ export function OdooPMDashboard() {
           onArchive={archiveProject}
           onRestore={restoreProject}
           onSettings={setSelectedProjectId}
+          groupBy={groupBy as 'date' | 'activity' | 'employee' | null}
         />
       </div>
 
