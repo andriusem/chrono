@@ -37,7 +37,7 @@ export function OdooEmployeeDashboard() {
   } = useTimeEntryStore();
 
   // View state
-  const [viewMode, setViewMode] = useState<ViewMode>('kanban');
+  const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [groupBy, setGroupBy] = useState<string | null>(null);
 
@@ -229,7 +229,7 @@ export function OdooEmployeeDashboard() {
         }}
         viewMode={viewMode}
         onViewModeChange={setViewMode}
-        availableViews={['list', 'kanban', 'grid']}
+        availableViews={['list', 'grid', 'kanban']}
       >
         {/* Filter Bar */}
         <FilterBar

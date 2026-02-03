@@ -19,18 +19,20 @@ export function ViewSwitcher({
   onViewChange,
   availableViews = ['list', 'kanban'],
 }: ViewSwitcherProps) {
-  const views: { mode: ViewMode; icon: React.ReactNode; label: string }[] = [
-    { mode: 'list', icon: <List className="h-4 w-4" />, label: 'List' },
-    { mode: 'kanban', icon: <LayoutGrid className="h-4 w-4" />, label: 'Kanban' },
-    { mode: 'grid', icon: <Grid3x3 className="h-4 w-4" />, label: 'Grid' },
-    { mode: 'calendar', icon: <Calendar className="h-4 w-4" />, label: 'Calendar' },
-  ];
+  const viewMap: Record<ViewMode, { icon: React.ReactNode; label: string }> = {
+    list: { icon: <List className="h-4 w-4" />, label: 'List' },
+    kanban: { icon: <LayoutGrid className="h-4 w-4" />, label: 'Kanban' },
+    grid: { icon: <Grid3x3 className="h-4 w-4" />, label: 'Grid' },
+    calendar: { icon: <Calendar className="h-4 w-4" />, label: 'Calendar' },
+  };
 
-  const filteredViews = views.filter((v) => availableViews.includes(v.mode));
+  const orderedViews = availableViews
+    .map((mode) => ({ mode, ...viewMap[mode] }))
+    .filter((view) => view.icon && view.label);
 
   return (
     <div className="odoo-view-switcher">
-      {filteredViews.map((view) => (
+      {orderedViews.map((view) => (
         <button
           key={view.mode}
           onClick={() => onViewChange(view.mode)}
