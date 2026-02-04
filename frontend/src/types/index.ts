@@ -32,6 +32,7 @@ export interface Project {
   status: ProjectStatus;
   createdAt: string; // ISO date string
   createdById: string;
+  allocatedHours?: number; // Planned time budget for the project (hours)
 }
 
 // ============================================
@@ -47,6 +48,7 @@ export interface Activity {
   color: string; // Hex color code like "#3B82F6"
   isArchived: boolean;
   kanbanStatus?: KanbanStatus; // For Kanban board columns, defaults to 'todo'
+  allocatedHours?: number; // Planned time budget for the activity (hours)
 }
 
 // ============================================

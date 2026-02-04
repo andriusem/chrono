@@ -42,6 +42,8 @@ interface TimeEntryState {
   getEntriesForUser: (userId: string, date?: string) => TimeEntry[];
   getEntriesForProject: (projectId: string) => TimeEntry[];
   getTodayMinutesForActivity: (userId: string, activityId: string) => number;
+  getTotalMinutesForActivity: (activityId: string) => number;
+  getTotalMinutesForProject: (projectId: string) => number;
 }
 
 // Generate unique IDs
@@ -289,6 +291,38 @@ export const useTimeEntryStore = create<TimeEntryState>()(
             return total + entry.durationMinutes;
           }
           // For running timer, calculate current duration
+          if (entry.status === 'running') {
+            return total + differenceInMinutes(new Date(), parseISO(entry.startTime));
+          }
+          return total;
+        }, 0);
+      },
+
+      getTotalMinutesForActivity: (activityId) => {
+        const entries = get().entries.filter(
+          (e) => e.activityId === activityId && !e.isDeleted
+        );
+
+        return entries.reduce((total, entry) => {
+          if (entry.durationMinutes) {
+            return total + entry.durationMinutes;
+          }
+          if (entry.status === 'running') {
+            return total + differenceInMinutes(new Date(), parseISO(entry.startTime));
+          }
+          return total;
+        }, 0);
+      },
+
+      getTotalMinutesForProject: (projectId) => {
+        const entries = get().entries.filter(
+          (e) => e.projectId === projectId && !e.isDeleted
+        );
+
+        return entries.reduce((total, entry) => {
+          if (entry.durationMinutes) {
+            return total + entry.durationMinutes;
+          }
           if (entry.status === 'running') {
             return total + differenceInMinutes(new Date(), parseISO(entry.startTime));
           }

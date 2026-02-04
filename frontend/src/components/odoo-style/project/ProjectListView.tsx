@@ -30,11 +30,11 @@ export function ProjectListView({
   groupBy = null,
 }: ProjectListViewProps) {
   const { getActivitiesForProject, getAssignedEmployeeIds } = useProjectStore();
-  const { getEntriesForProject } = useTimeEntryStore();
+  const { getEntriesForProject, getTotalMinutesForProject } = useTimeEntryStore();
 
   // Calculate stats for each project
   const projectStats = useMemo(() => {
-    const stats: Record<string, { hours: number; employees: number; activities: number }> = {};
+    const stats: Record<string, { hours: number; totalMinutes: number; allocatedMinutes: number; employees: number; activities: number }> = {};
 
     projects.forEach((project) => {
       const entries = getEntriesForProject(project.id);
@@ -45,26 +45,32 @@ export function ProjectListView({
       const weekMinutes = entries
         .filter((e) => new Date(e.startTime) >= thisWeekStart && !e.isDeleted)
         .reduce((sum, e) => sum + (e.durationMinutes || 0), 0);
+      const totalMinutes = getTotalMinutesForProject(project.id);
+      const allocatedMinutes = Math.round((project.allocatedHours || 0) * 60);
 
       stats[project.id] = {
         hours: weekMinutes,
+        totalMinutes,
+        allocatedMinutes,
         employees: getAssignedEmployeeIds(project.id).length,
         activities: getActivitiesForProject(project.id).length,
       };
     });
 
     return stats;
-  }, [projects, getEntriesForProject, getAssignedEmployeeIds, getActivitiesForProject]);
+  }, [projects, getEntriesForProject, getAssignedEmployeeIds, getActivitiesForProject, getTotalMinutesForProject]);
 
   // Calculate totals
   const totals = useMemo(() => {
     return projects.reduce(
       (acc, p) => ({
         hours: acc.hours + (projectStats[p.id]?.hours || 0),
+        totalMinutes: acc.totalMinutes + (projectStats[p.id]?.totalMinutes || 0),
+        allocatedMinutes: acc.allocatedMinutes + (projectStats[p.id]?.allocatedMinutes || 0),
         employees: acc.employees + (projectStats[p.id]?.employees || 0),
         activities: acc.activities + (projectStats[p.id]?.activities || 0),
       }),
-      { hours: 0, employees: 0, activities: 0 }
+      { hours: 0, totalMinutes: 0, allocatedMinutes: 0, employees: 0, activities: 0 }
     );
   }, [projects, projectStats]);
 
@@ -142,6 +148,7 @@ export function ProjectListView({
             <th>Project Name</th>
             <th style={{ width: '120px' }}>Status</th>
             <th style={{ width: '120px' }}>This Week</th>
+            <th style={{ width: '140px' }}>Budget</th>
             <th style={{ width: '100px' }}>Team</th>
             <th style={{ width: '100px' }}>Activities</th>
             <th style={{ width: '120px' }}>Actions</th>
@@ -152,7 +159,7 @@ export function ProjectListView({
             <Fragment key={group.id}>
               {groupBy && group.id !== 'ungrouped' && (
                 <tr className="bg-[var(--odoo-gray-100)]">
-                  <td colSpan={6} className="font-semibold text-[var(--odoo-gray-700)]">
+                  <td colSpan={7} className="font-semibold text-[var(--odoo-gray-700)]">
                     {group.label}
                     <span className="ml-2 text-sm font-normal text-[var(--odoo-gray-500)]">
                       ({group.projects.length} projects)
@@ -161,8 +168,19 @@ export function ProjectListView({
                 </tr>
               )}
               {group.projects.map((project) => {
-                const stats = projectStats[project.id] || { hours: 0, employees: 0, activities: 0 };
+                const stats = projectStats[project.id] || { hours: 0, totalMinutes: 0, allocatedMinutes: 0, employees: 0, activities: 0 };
                 const isArchived = project.status === 'archived';
+                const showBudget = stats.allocatedMinutes > 0;
+                const remainingMinutes = stats.allocatedMinutes - stats.totalMinutes;
+                const remainingRatio = showBudget ? remainingMinutes / stats.allocatedMinutes : 1;
+                const budgetClass =
+                  !showBudget
+                    ? 'text-[var(--odoo-gray-400)]'
+                    : remainingMinutes < 0
+                      ? 'text-[var(--odoo-danger)]'
+                      : remainingRatio <= 0.2
+                        ? 'text-[var(--odoo-warning)]'
+                        : 'text-[var(--odoo-gray-700)]';
 
                 return (
                   <tr
@@ -201,6 +219,17 @@ export function ProjectListView({
                         <Clock className="h-4 w-4 text-[var(--odoo-gray-500)]" />
                         <span>{formatDuration(stats.hours)}</span>
                       </div>
+                    </td>
+
+                    {/* Budget */}
+                    <td>
+                      {showBudget ? (
+                        <span className={`text-sm ${budgetClass}`}>
+                          {formatDuration(stats.totalMinutes)} / {formatDuration(stats.allocatedMinutes)}
+                        </span>
+                      ) : (
+                        <span className="text-sm text-[var(--odoo-gray-400)]">—</span>
+                      )}
                     </td>
 
                     {/* Team Size */}
@@ -256,6 +285,11 @@ export function ProjectListView({
             <td>Total ({projects.length} projects)</td>
             <td></td>
             <td>{formatDuration(totals.hours)}</td>
+            <td>
+              {totals.allocatedMinutes > 0
+                ? `${formatDuration(totals.totalMinutes)} / ${formatDuration(totals.allocatedMinutes)}`
+                : '—'}
+            </td>
             <td>{totals.employees}</td>
             <td>{totals.activities}</td>
             <td></td>

@@ -80,11 +80,12 @@ export function OdooPMDashboard() {
     if (filterId === 'archived') setShowArchived(!showArchived);
   };
 
-  const handleCreateProject = (data: { name: string; description: string }) => {
+  const handleCreateProject = (data: { name: string; description: string; allocatedHours?: number }) => {
     if (!currentUser) return;
     createProject({
       name: data.name,
       description: data.description,
+      allocatedHours: data.allocatedHours,
       status: 'active',
       createdById: currentUser.id,
     });

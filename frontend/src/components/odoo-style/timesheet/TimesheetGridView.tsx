@@ -17,6 +17,7 @@ import { useTimeEntryStore } from '@/store/timeEntryStore';
 import { useProjectStore } from '@/store/projectStore';
 import { useAuthStore } from '@/store/authStore';
 import { WeekNavigator } from './WeekNavigator';
+import { formatDuration, formatSignedDuration } from '@/lib/formatters';
 import type { TimeEntry, Project, Activity } from '@/types';
 
 interface TimesheetGridViewProps {
@@ -34,7 +35,7 @@ interface GridRow {
 export function TimesheetGridView({ onStartTimer }: TimesheetGridViewProps) {
   const currentUser = useAuthStore((state) => state.currentUser);
   const { projects, getProjectById, getActivitiesForProject } = useProjectStore();
-  const { entries, getEntriesForUser } = useTimeEntryStore();
+  const { entries, getEntriesForUser, getTotalMinutesForActivity } = useTimeEntryStore();
   const addDirectEntry = useTimeEntryStore((state) => state.updateEntry);
 
   // Week navigation state
@@ -338,6 +339,19 @@ export function TimesheetGridView({ onStartTimer }: TimesheetGridViewProps) {
               const rowKey = `${row.projectId}:${row.activityId}`;
               const rowTotal = getRowTotal(row);
               const rowLetter = String.fromCharCode(65 + index); // A, B, C...
+              const allocatedMinutes = Math.round(
+                (row.activity.allocatedHours || 0) * 60
+              );
+              const totalMinutesForActivity = getTotalMinutesForActivity(row.activityId);
+              const remainingMinutes = allocatedMinutes - totalMinutesForActivity;
+              const showBudget = allocatedMinutes > 0;
+              const remainingRatio = showBudget ? remainingMinutes / allocatedMinutes : 1;
+              const remainingClass =
+                remainingMinutes < 0
+                  ? 'text-[var(--odoo-danger)]'
+                  : remainingRatio <= 0.2
+                    ? 'text-[var(--odoo-warning)]'
+                    : 'text-[var(--odoo-gray-500)]';
 
               return (
                 <tr key={rowKey} className="hover:bg-[var(--odoo-gray-50)]">
@@ -356,6 +370,12 @@ export function TimesheetGridView({ onStartTimer }: TimesheetGridViewProps) {
                         <span className="text-[var(--odoo-gray-600)]">
                           {row.activity.name}
                         </span>
+                        {showBudget && (
+                          <div className={`text-xs ${remainingClass}`}>
+                            Remaining: {formatSignedDuration(remainingMinutes)} /{' '}
+                            {formatDuration(allocatedMinutes)}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </td>

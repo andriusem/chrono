@@ -66,6 +66,7 @@ export const mockProjects: Project[] = [
     status: 'active',
     createdAt: '2026-01-15T09:00:00Z',
     createdById: 'user-1',
+    allocatedHours: 160,
   },
   {
     id: 'project-2',
@@ -74,6 +75,7 @@ export const mockProjects: Project[] = [
     status: 'active',
     createdAt: '2026-01-10T10:00:00Z',
     createdById: 'user-1',
+    allocatedHours: 200,
   },
   {
     id: 'project-3',
@@ -82,6 +84,7 @@ export const mockProjects: Project[] = [
     status: 'active',
     createdAt: '2026-01-20T08:00:00Z',
     createdById: 'user-1',
+    allocatedHours: 120,
   },
   {
     id: 'project-4',
@@ -90,6 +93,7 @@ export const mockProjects: Project[] = [
     status: 'active',
     createdAt: '2026-01-05T09:00:00Z',
     createdById: 'user-1',
+    allocatedHours: 80,
   },
 ];
 
@@ -106,6 +110,7 @@ export const mockActivities: Activity[] = [
     projectId: 'project-1',
     color: '#3878ff', // Blue (accent)
     isArchived: false,
+    allocatedHours: 24,
   },
   {
     id: 'activity-2',
@@ -113,6 +118,7 @@ export const mockActivities: Activity[] = [
     projectId: 'project-1',
     color: '#28a745', // Green
     isArchived: false,
+    allocatedHours: 30,
   },
   {
     id: 'activity-3',
@@ -120,6 +126,7 @@ export const mockActivities: Activity[] = [
     projectId: 'project-1',
     color: '#6c757d', // Gray
     isArchived: false,
+    allocatedHours: 16,
   },
   {
     id: 'activity-4',
@@ -127,6 +134,7 @@ export const mockActivities: Activity[] = [
     projectId: 'project-1',
     color: '#17a2b8', // Teal
     isArchived: false,
+    allocatedHours: 10,
   },
   {
     id: 'activity-5',
@@ -134,6 +142,7 @@ export const mockActivities: Activity[] = [
     projectId: 'project-1',
     color: '#ffc107', // Amber
     isArchived: false,
+    allocatedHours: 20,
   },
   // Youth Education activities
   {
@@ -142,6 +151,7 @@ export const mockActivities: Activity[] = [
     projectId: 'project-2',
     color: '#6f42c1', // Purple
     isArchived: false,
+    allocatedHours: 18,
   },
   {
     id: 'activity-7',
@@ -149,6 +159,7 @@ export const mockActivities: Activity[] = [
     projectId: 'project-2',
     color: '#20c997', // Teal-green
     isArchived: false,
+    allocatedHours: 22,
   },
   {
     id: 'activity-8',
@@ -156,6 +167,7 @@ export const mockActivities: Activity[] = [
     projectId: 'project-2',
     color: '#fd7e14', // Orange
     isArchived: false,
+    allocatedHours: 26,
   },
   {
     id: 'activity-9',
@@ -163,6 +175,7 @@ export const mockActivities: Activity[] = [
     projectId: 'project-2',
     color: '#e83e8c', // Pink
     isArchived: false,
+    allocatedHours: 12,
   },
   {
     id: 'activity-10',
@@ -170,6 +183,7 @@ export const mockActivities: Activity[] = [
     projectId: 'project-2',
     color: '#007bff', // Blue
     isArchived: false,
+    allocatedHours: 14,
   },
   // Cultural Festival activities
   {
@@ -178,6 +192,7 @@ export const mockActivities: Activity[] = [
     projectId: 'project-3',
     color: '#dc3545', // Red
     isArchived: false,
+    allocatedHours: 32,
   },
   {
     id: 'activity-12',
@@ -185,6 +200,7 @@ export const mockActivities: Activity[] = [
     projectId: 'project-3',
     color: '#28a745', // Green
     isArchived: false,
+    allocatedHours: 20,
   },
   {
     id: 'activity-13',
@@ -192,6 +208,7 @@ export const mockActivities: Activity[] = [
     projectId: 'project-3',
     color: '#6610f2', // Indigo
     isArchived: false,
+    allocatedHours: 16,
   },
   {
     id: 'activity-14',
@@ -199,6 +216,7 @@ export const mockActivities: Activity[] = [
     projectId: 'project-3',
     color: '#e83e8c', // Pink
     isArchived: false,
+    allocatedHours: 18,
   },
   {
     id: 'activity-15',
@@ -206,6 +224,7 @@ export const mockActivities: Activity[] = [
     projectId: 'project-3',
     color: '#795548', // Brown
     isArchived: false,
+    allocatedHours: 24,
   },
   // Grant Reporting activities
   {
@@ -214,6 +233,7 @@ export const mockActivities: Activity[] = [
     projectId: 'project-4',
     color: '#607d8b', // Blue-gray
     isArchived: false,
+    allocatedHours: 20,
   },
   {
     id: 'activity-17',
@@ -221,6 +241,7 @@ export const mockActivities: Activity[] = [
     projectId: 'project-4',
     color: '#3878ff', // Accent blue
     isArchived: false,
+    allocatedHours: 28,
   },
   {
     id: 'activity-18',
@@ -228,6 +249,7 @@ export const mockActivities: Activity[] = [
     projectId: 'project-4',
     color: '#4caf50', // Material green
     isArchived: false,
+    allocatedHours: 12,
   },
   {
     id: 'activity-19',
@@ -235,6 +257,7 @@ export const mockActivities: Activity[] = [
     projectId: 'project-4',
     color: '#ff9800', // Material orange
     isArchived: false,
+    allocatedHours: 14,
   },
 ];
 

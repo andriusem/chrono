@@ -9,7 +9,7 @@ import { Play, Square, Pencil, Trash2, Clock } from 'lucide-react';
 import { useTimeEntryStore } from '@/store/timeEntryStore';
 import { useProjectStore } from '@/store/projectStore';
 import { useAuthStore } from '@/store/authStore';
-import { formatDuration, formatTime, formatRelativeDate } from '@/lib/formatters';
+import { formatDuration, formatSignedDuration, formatTime, formatRelativeDate } from '@/lib/formatters';
 import { useTimer } from '@/hooks/useTimer';
 import type { TimeEntry, Activity, Project } from '@/types';
 
@@ -31,6 +31,9 @@ export function TimesheetListView({
 }: TimesheetListViewProps) {
   const currentUser = useAuthStore((state) => state.currentUser);
   const { getProjectById, getActivitiesForProject } = useProjectStore();
+  const getTotalMinutesForActivity = useTimeEntryStore(
+    (state) => state.getTotalMinutesForActivity
+  );
   const runningTimer = useTimeEntryStore((state) =>
     currentUser ? state.getRunningTimer(currentUser.id) : null
   );
@@ -130,6 +133,7 @@ export function TimesheetListView({
                   entry={entry}
                   activity={getActivityById(entry.activityId)}
                   project={getProjectById(entry.projectId)}
+                  totalMinutesForActivity={getTotalMinutesForActivity(entry.activityId)}
                   isRunning={runningTimer?.id === entry.id}
                   onStart={() => onStartTimer?.(entry.activityId, entry.projectId)}
                   onStop={(comments) => onStopTimer?.(entry.id, comments)}
@@ -161,6 +165,7 @@ interface TimesheetRowProps {
   entry: TimeEntry;
   activity?: Activity;
   project?: Project;
+  totalMinutesForActivity: number;
   isRunning: boolean;
   onStart: () => void;
   onStop: (comments?: string) => void;
@@ -171,6 +176,7 @@ function TimesheetRow({
   entry,
   activity,
   project,
+  totalMinutesForActivity,
   isRunning,
   onStart,
   onStop,
@@ -202,6 +208,17 @@ function TimesheetRow({
     isRunning ? 'bg-blue-50' : ''
   }`;
 
+  const allocatedMinutes = Math.round((activity?.allocatedHours || 0) * 60);
+  const remainingMinutes = allocatedMinutes - totalMinutesForActivity;
+  const showBudget = allocatedMinutes > 0;
+  const remainingRatio = showBudget ? remainingMinutes / allocatedMinutes : 1;
+  const remainingClass =
+    remainingMinutes < 0
+      ? 'text-[var(--odoo-danger)]'
+      : remainingRatio <= 0.2
+        ? 'text-[var(--odoo-warning)]'
+        : 'text-[var(--odoo-gray-500)]';
+
   return (
     <tr className={rowClass}>
       {/* Date */}
@@ -230,7 +247,14 @@ function TimesheetRow({
             className="w-3 h-3 rounded-full"
             style={{ backgroundColor: activity?.color || '#ccc' }}
           />
-          <span>{activity?.name || 'Unknown Activity'}</span>
+          <div>
+            <span>{activity?.name || 'Unknown Activity'}</span>
+            {showBudget && (
+              <div className={`text-xs ${remainingClass}`}>
+                Remaining: {formatSignedDuration(remainingMinutes)}
+              </div>
+            )}
+          </div>
         </div>
       </td>
 

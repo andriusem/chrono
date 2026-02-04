@@ -89,10 +89,11 @@ export function PMDashboard() {
   }, [projects, activities, assignments, entries, getActivitiesForProject, getAssignedEmployeeIds]);
 
   // Handlers
-  const handleCreateProject = (data: { name: string; description: string }) => {
+  const handleCreateProject = (data: { name: string; description: string; allocatedHours?: number }) => {
     createProject({
       name: data.name,
       description: data.description,
+      allocatedHours: data.allocatedHours,
       status: 'active',
       createdById: userId,
     });

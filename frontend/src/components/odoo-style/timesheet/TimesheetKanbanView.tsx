@@ -10,7 +10,7 @@ import { Play, Square, Clock, User } from 'lucide-react';
 import { useTimeEntryStore } from '@/store/timeEntryStore';
 import { useProjectStore } from '@/store/projectStore';
 import { useAuthStore } from '@/store/authStore';
-import { formatDuration } from '@/lib/formatters';
+import { formatDuration, formatSignedDuration } from '@/lib/formatters';
 import { useTimer } from '@/hooks/useTimer';
 import type { Activity, Project, TimeEntry, KanbanStatus } from '@/types';
 
@@ -34,7 +34,12 @@ export function TimesheetKanbanView({
   onStopTimer,
 }: TimesheetKanbanViewProps) {
   const currentUser = useAuthStore((state) => state.currentUser);
-  const { entries, getRunningTimer, getTodayMinutesForActivity } = useTimeEntryStore();
+  const {
+    entries,
+    getRunningTimer,
+    getTodayMinutesForActivity,
+    getTotalMinutesForActivity,
+  } = useTimeEntryStore();
   const { updateActivityKanbanStatus } = useProjectStore();
 
   const runningTimer = currentUser ? getRunningTimer(currentUser.id) : null;
@@ -164,6 +169,8 @@ export function TimesheetKanbanView({
                       ? getTodayMinutesForActivity(currentUser.id, activity.id)
                       : 0
                   }
+                  totalMinutes={getTotalMinutesForActivity(activity.id)}
+                  allocatedMinutes={Math.round((activity.allocatedHours || 0) * 60)}
                   onStart={() => onStartTimer(activity.id)}
                   onStop={(comments) =>
                     runningTimer && onStopTimer(runningTimer.id, comments)
@@ -202,6 +209,8 @@ interface ActivityKanbanCardProps {
   isRunning: boolean;
   runningEntry: TimeEntry | null;
   todayMinutes: number;
+  totalMinutes: number;
+  allocatedMinutes: number;
   onStart: () => void;
   onStop: (comments?: string) => void;
   isDragging?: boolean;
@@ -214,6 +223,8 @@ function ActivityKanbanCard({
   isRunning,
   runningEntry,
   todayMinutes,
+  totalMinutes,
+  allocatedMinutes,
   onStart,
   onStop,
   isDragging = false,
@@ -235,6 +246,16 @@ function ActivityKanbanCard({
       .padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
+  const remainingMinutes = allocatedMinutes - totalMinutes;
+  const showBudget = allocatedMinutes > 0;
+  const remainingRatio = showBudget ? remainingMinutes / allocatedMinutes : 1;
+  const remainingClass =
+    remainingMinutes < 0
+      ? 'text-[var(--odoo-danger)]'
+      : remainingRatio <= 0.2
+        ? 'text-[var(--odoo-warning)]'
+        : 'text-[var(--odoo-gray-500)]';
+
   return (
     <div
       draggable
@@ -255,6 +276,12 @@ function ActivityKanbanCard({
           <p className="odoo-kanban-card-subtitle">
             Today: {formatDuration(todayMinutes)}
           </p>
+          {showBudget && (
+            <p className={`text-xs ${remainingClass}`}>
+              Remaining: {formatSignedDuration(remainingMinutes)} /{' '}
+              {formatDuration(allocatedMinutes)}
+            </p>
+          )}
         </div>
         <div
           className="w-4 h-4 rounded-full"

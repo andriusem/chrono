@@ -21,7 +21,7 @@ import { Label } from '@/components/ui/label';
 interface CreateProjectModalProps {
   open: boolean;
   onClose: () => void;
-  onSubmit: (data: { name: string; description: string }) => void;
+  onSubmit: (data: { name: string; description: string; allocatedHours?: number }) => void;
 }
 
 export function CreateProjectModal({
@@ -31,6 +31,7 @@ export function CreateProjectModal({
 }: CreateProjectModalProps) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const [allocatedHours, setAllocatedHours] = useState('');
   const [error, setError] = useState('');
 
   const handleSubmit = () => {
@@ -39,9 +40,20 @@ export function CreateProjectModal({
       return;
     }
 
-    onSubmit({ name: name.trim(), description: description.trim() });
+    const parsedAllocated = parseFloat(allocatedHours);
+    const normalizedAllocated =
+      Number.isFinite(parsedAllocated) && parsedAllocated > 0
+        ? parsedAllocated
+        : undefined;
+
+    onSubmit({
+      name: name.trim(),
+      description: description.trim(),
+      ...(normalizedAllocated ? { allocatedHours: normalizedAllocated } : {}),
+    });
     setName('');
     setDescription('');
+    setAllocatedHours('');
     setError('');
     onClose();
   };
@@ -49,6 +61,7 @@ export function CreateProjectModal({
   const handleClose = () => {
     setName('');
     setDescription('');
+    setAllocatedHours('');
     setError('');
     onClose();
   };
@@ -85,6 +98,19 @@ export function CreateProjectModal({
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="project-allocated">Allocated Hours (optional)</Label>
+            <Input
+              id="project-allocated"
+              type="number"
+              min="0"
+              step="0.25"
+              placeholder="e.g., 120"
+              value={allocatedHours}
+              onChange={(e) => setAllocatedHours(e.target.value)}
             />
           </div>
 
