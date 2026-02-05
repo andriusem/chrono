@@ -6,7 +6,7 @@
 
 import { useState, useMemo } from 'react';
 import { Clock, Calendar, FolderKanban } from 'lucide-react';
-import { useAuthStore } from '@/store/authStore';
+import { useAuth } from '@/hooks/useAuth';
 import { useProjectStore } from '@/store/projectStore';
 import { useTimeEntryStore } from '@/store/timeEntryStore';
 import { useAttendanceStore } from '@/store/attendanceStore';
@@ -26,7 +26,7 @@ import { AttendanceModal } from '@/components/modals/AttendanceModal';
 import { toast } from 'sonner';
 
 export function OdooEmployeeDashboard() {
-  const currentUser = useAuthStore((state) => state.currentUser);
+  const { user: currentUser, switchRole, logout } = useAuth();
   const { getProjectsForUser, getActivitiesForProject, getProjectById, activities: allActivities } =
     useProjectStore();
   const {
@@ -227,6 +227,10 @@ export function OdooEmployeeDashboard() {
             }
           },
         }}
+        secondaryActions={[
+          { label: 'PM View', onClick: () => switchRole('pm') },
+          { label: 'Sign Out', onClick: logout },
+        ]}
         viewMode={viewMode}
         onViewModeChange={setViewMode}
         availableViews={['list', 'grid', 'kanban']}

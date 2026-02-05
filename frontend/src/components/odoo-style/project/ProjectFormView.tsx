@@ -4,14 +4,15 @@
 // Detailed project view following Odoo's form pattern
 // Features: Header with status, stat buttons, notebook tabs
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ArrowLeft, Clock, Users, Layers, Plus, Trash2 } from 'lucide-react';
 import { useProjectStore } from '@/store/projectStore';
 import { useTimeEntryStore } from '@/store/timeEntryStore';
 import { formatDuration, formatSignedDuration } from '@/lib/formatters';
 import { StatusBar } from '@/components/odoo-style/shared';
 import { StatButton, StatButtonGroup } from '@/components/odoo-style/shared/StatButton';
-import type { Project } from '@/types';
+import { EMPLOYEE_ROLES } from '@/data/objectifData';
+import type { EmployeeRole, Project } from '@/types';
 
 interface ProjectFormViewProps {
   project: Project;
@@ -34,6 +35,7 @@ export function ProjectFormView({
   const {
     getActivitiesForProject,
     getAssignedEmployeeIds,
+    allocations,
     createActivity,
     updateActivity,
     updateProject,
@@ -46,6 +48,28 @@ export function ProjectFormView({
   // Get project data
   const activities = getActivitiesForProject(project.id);
   const assignedEmployeeIds = getAssignedEmployeeIds(project.id);
+  const roleSummary = useMemo(() => {
+    const activityIdSet = new Set(activities.map((activity) => activity.id));
+    const totals = EMPLOYEE_ROLES.reduce((acc, role) => {
+      acc[role] = 0;
+      return acc;
+    }, {} as Record<EmployeeRole, number>);
+
+    allocations.forEach((allocation) => {
+      if (activityIdSet.has(allocation.activityId)) {
+        totals[allocation.role] += allocation.allocatedHours;
+      }
+    });
+
+    const items = EMPLOYEE_ROLES.map((role) => ({
+      role,
+      minutes: Math.round(totals[role] * 60),
+    }));
+
+    const totalMinutes = items.reduce((sum, item) => sum + item.minutes, 0);
+
+    return { items, totalMinutes };
+  }, [activities, allocations]);
   // Calculate stats
   const totalMinutes = getTotalMinutesForProject(project.id);
   const allocatedMinutes = Math.round((project.allocatedHours || 0) * 60);
@@ -239,6 +263,30 @@ export function ProjectFormView({
             <h3 className="text-sm font-semibold text-[var(--odoo-gray-700)] mb-3">
               Project Activities
             </h3>
+
+            <div className="mb-4 rounded border border-[var(--odoo-gray-200)] bg-[var(--odoo-gray-100)] p-3">
+              <div className="flex items-center justify-between mb-2">
+                <h4 className="text-xs font-semibold text-[var(--odoo-gray-700)]">
+                  Allocation par rôle
+                </h4>
+                <span className="text-xs text-[var(--odoo-gray-500)]">
+                  Total: {formatDuration(roleSummary.totalMinutes)}
+                </span>
+              </div>
+              <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                {roleSummary.items.map((item) => (
+                  <div
+                    key={item.role}
+                    className="flex items-center justify-between rounded border border-[var(--odoo-gray-200)] bg-white px-2 py-1.5 text-xs"
+                  >
+                    <span className="text-[var(--odoo-gray-700)]">{item.role}</span>
+                    <span className="font-semibold text-[var(--odoo-gray-800)]">
+                      {formatDuration(item.minutes)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
 
             {/* Add Activity Form */}
             {!isArchived && (

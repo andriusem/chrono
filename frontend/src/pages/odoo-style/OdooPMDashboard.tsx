@@ -6,7 +6,7 @@
 
 import { useState, useMemo } from 'react';
 import { useProjectStore } from '@/store/projectStore';
-import { useAuthStore } from '@/store/authStore';
+import { useAuth } from '@/hooks/useAuth';
 import {
   OdooHeader,
   FilterBar,
@@ -16,7 +16,7 @@ import { ProjectFormView } from '@/components/odoo-style/project/ProjectFormView
 import { CreateProjectModal } from '@/components/modals/CreateProjectModal';
 
 export function OdooPMDashboard() {
-  const currentUser = useAuthStore((state) => state.currentUser);
+  const { user: currentUser, switchRole, logout } = useAuth();
   const { projects, archiveProject, restoreProject, createProject } = useProjectStore();
 
   // View state
@@ -130,6 +130,10 @@ export function OdooPMDashboard() {
           label: 'New Project',
           onClick: () => setShowCreateModal(true),
         }}
+        secondaryActions={[
+          { label: 'Employee View', onClick: () => switchRole('employee') },
+          { label: 'Sign Out', onClick: logout },
+        ]}
       >
         {/* Filter Bar */}
         <FilterBar
