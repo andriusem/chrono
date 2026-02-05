@@ -198,6 +198,16 @@ Card-based view with 3-column drag-and-drop Kanban board.
 ```
 
 **Kanban Columns:**
+
+---
+
+## Project Form View
+
+`ProjectFormView` (PM) includes budget and allocation insights:
+
+- **Project budget stat buttons**: Spent, Allocated, Remaining.
+- **Activity budgets**: Inline allocated hours with remaining indicators.
+- **Allocation par rôle** summary: Per-role allocated hours for the current project (derived from CSV allocations).
 | Column | Status Value | Description |
 |--------|--------------|-------------|
 | To Do | `todo` | Activities not yet started |

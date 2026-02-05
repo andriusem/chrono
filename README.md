@@ -6,6 +6,14 @@ A timer-based time tracking application for small teams (1-20 people), built wit
 
 Chrono helps employees track time spent on project activities using a simple timer interface. Click to start, work, click to stop. It also tracks daily attendance (clock-in/clock-out) and integrates with Microsoft Teams for seamless access and reminders.
 
+## Prototype Status (2026-02-05)
+
+The current app is a **frontend-only prototype** that runs entirely in the browser with localStorage persistence.
+
+- **Embedded data** comes from `docs/Objectif repartition des tâches.csv`, converted once via `frontend/scripts/convert_objectif_csv.cjs` into `frontend/src/data/objectifData.ts`.
+- **Allocated hours** are computed from per-role allocations; the project form shows a small role summary card.
+- **No backend** is connected yet (FastAPI/Azure stack remains the target architecture).
+
 ## Features
 
 ### MVP (Version 1.0)
@@ -14,6 +22,7 @@ Chrono helps employees track time spent on project activities using a simple tim
 - **Project & Activity management** - PMs create projects and activities
 - **Team assignments** - PMs assign employees to projects (employees only see assigned projects)
 - **Daily attendance** - Clock-in/clock-out submission with end-of-day reminders
+- **Allocated hours & budgets** - Project/activity allocations with remaining time indicators
 - **Microsoft Teams integration** - Embedded as a Teams tab
 - **Teams Bot notifications** - Automated attendance reminders (organization timezone, DST-aware)
 - **Manual time editing** - Correct or backdate entries

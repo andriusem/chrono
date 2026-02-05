@@ -1,9 +1,8 @@
 # Chrono Frontend Documentation
 
 > **UI/UX Prototype** for the Chrono Time Tracking Application
-> 
-> **Commit:** `a81a056` - Add CurrentActivityCard component and update dashboard layout
-> **Co-Authored-By:** Claude Opus 4.5
+>
+> **Last updated:** 2026-02-05
 
 ---
 
@@ -12,6 +11,22 @@
 This frontend is a **stakeholder demonstration prototype** implementing the complete UI/UX for the Chrono time tracking application. It uses mock data and localStorage persistence to simulate full functionality without a backend.
 
 **Current UI state:** The Classic (Odoo-style) UI is the active interface. The Modern UI has been archived under `src/archived/modern` for optional local use.
+
+### Embedded CSV Data (Objective Allocations)
+
+The prototype embeds a CSV-derived dataset from:
+
+`chrono/docs/Objectif repartition des tâches.csv`
+
+The one-time conversion script lives at:
+
+`frontend/scripts/convert_objectif_csv.cjs`
+
+It generates:
+
+`frontend/src/data/objectifData.ts`
+
+This file contains the projects, activities, and per-role allocations used by the UI. The runtime app does **not** parse CSV.
 
 ### Key Features Implemented
 
@@ -23,6 +38,8 @@ This frontend is a **stakeholder demonstration prototype** implementing the comp
 | **Attendance** | Clock-in/clock-out submission with validation |
 | **PM Dashboard** | Project management, activity creation, team assignment |
 | **Time Reports** | Filterable, sortable time entry tables |
+| **Allocated Hours** | Project/activity budgets with remaining time indicators |
+| **Role Allocations** | CSV-derived allocations per role with project summary |
 | **Responsive Design** | Supports 400px to 1920px screen widths |
 
 ---
@@ -81,11 +98,15 @@ frontend/
 │   │   └── index.ts         # TypeScript type definitions
 │   │
 │   ├── data/
-│   │   └── mockData.ts      # Mock users, projects, activities, entries
+│   │   ├── mockData.ts      # Mock users, project assignments, entries
+│   │   └── objectifData.ts  # CSV-derived projects, activities, allocations
 │   │
 │   └── lib/
 │       ├── utils.ts         # cn() utility for class merging
 │       └── formatters.ts    # Time/duration formatting helpers
+│
+├── scripts/
+│   └── convert_objectif_csv.cjs  # One-time CSV -> TS data generator
 │
 ├── package.json
 ├── vite.config.ts
@@ -119,6 +140,7 @@ interface ProjectState {
   projects: Project[];
   activities: Activity[];
   assignments: ProjectAssignment[];
+  allocations: ActivityAllocation[];
   
   // Actions
   createProject, updateProject, archiveProject, restoreProject
@@ -128,8 +150,13 @@ interface ProjectState {
   // Queries
   getProjectById, getActivitiesForProject, getProjectsForUser
   getAssignedEmployeeIds, isUserAssignedToProject
+  getAllocationsForActivity, getAllocationsForRole
 }
 ```
+
+**Role allocation types:**
+- `EmployeeRole` is a union of the six normalized roles used in the CSV dataset.
+- `ActivityAllocation` links an `activityId` to a role and allocated hours.
 
 #### 3. `timeEntryStore` (`chrono-time-entries`)
 
@@ -183,6 +210,8 @@ interface AttendanceState {
 - `DashboardRouter` - Routes to correct dashboard based on user role
 
 **Archived Modern UI:** routes for the modern prototype live in `src/archived/modern/App.modern.tsx`.
+
+**Quick actions:** both dashboards include header actions to switch between PM/Employee views and to sign out (returning to `/login`).
 
 ---
 
