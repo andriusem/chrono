@@ -332,6 +332,14 @@ export const useTimeEntryStore = create<TimeEntryState>()(
     }),
     {
       name: 'chrono-time-entries', // localStorage key
+      version: 2,
+      migrate: (persistedState) => {
+        const state = persistedState as TimeEntryState;
+        return {
+          ...state,
+          entries: [],
+        };
+      },
     }
   )
 );

@@ -5,11 +5,20 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Project, Activity, ProjectAssignment, ProjectStatus, KanbanStatus } from '@/types';
+import type {
+  Project,
+  Activity,
+  ProjectAssignment,
+  ProjectStatus,
+  KanbanStatus,
+  ActivityAllocation,
+  EmployeeRole,
+} from '@/types';
 import {
   mockProjects,
   mockActivities,
   mockProjectAssignments,
+  mockActivityAllocations,
 } from '@/data/mockData';
 
 interface ProjectState {
@@ -17,6 +26,7 @@ interface ProjectState {
   projects: Project[];
   activities: Activity[];
   assignments: ProjectAssignment[];
+  allocations: ActivityAllocation[];
 
   // Project actions
   createProject: (project: Omit<Project, 'id' | 'createdAt'>) => Project;
@@ -40,6 +50,8 @@ interface ProjectState {
   getProjectsForUser: (userId: string) => Project[];
   getAssignedEmployeeIds: (projectId: string) => string[];
   isUserAssignedToProject: (userId: string, projectId: string) => boolean;
+  getAllocationsForActivity: (activityId: string) => ActivityAllocation[];
+  getAllocationsForRole: (role: EmployeeRole) => ActivityAllocation[];
 }
 
 // Generate unique IDs
@@ -53,6 +65,7 @@ export const useProjectStore = create<ProjectState>()(
       projects: mockProjects,
       activities: mockActivities,
       assignments: mockProjectAssignments,
+      allocations: mockActivityAllocations,
 
       // ============================================
       // PROJECT ACTIONS
@@ -204,9 +217,28 @@ export const useProjectStore = create<ProjectState>()(
           (a) => a.userId === userId && a.projectId === projectId
         );
       },
+
+      getAllocationsForActivity: (activityId) => {
+        return get().allocations.filter((a) => a.activityId === activityId);
+      },
+
+      getAllocationsForRole: (role) => {
+        return get().allocations.filter((a) => a.role === role);
+      },
     }),
     {
       name: 'chrono-projects', // localStorage key
+      version: 2,
+      migrate: (persistedState) => {
+        const state = persistedState as ProjectState;
+        return {
+          ...state,
+          projects: mockProjects,
+          activities: mockActivities,
+          assignments: mockProjectAssignments,
+          allocations: mockActivityAllocations,
+        };
+      },
     }
   )
 );

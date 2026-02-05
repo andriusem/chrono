@@ -10,12 +10,21 @@
 
 export type Role = 'employee' | 'pm';
 
+export type EmployeeRole =
+  | 'Directrice'
+  | 'Responsable du développement du projet associatif'
+  | "Chargée d'accompagnement social"
+  | 'Médiatrice Sociale'
+  | 'Conseillère numérique'
+  | "Chargé d'innovation numérique et digitale";
+
 export interface User {
   id: string;
   email: string;
   displayName: string;
   avatarUrl?: string;
   role: Role;
+  jobTitle?: EmployeeRole;
   isActive: boolean;
 }
 
@@ -49,6 +58,16 @@ export interface Activity {
   isArchived: boolean;
   kanbanStatus?: KanbanStatus; // For Kanban board columns, defaults to 'todo'
   allocatedHours?: number; // Planned time budget for the activity (hours)
+}
+
+// ============================================
+// ALLOCATION TYPES
+// ============================================
+
+export interface ActivityAllocation {
+  activityId: string;
+  role: EmployeeRole;
+  allocatedHours: number;
 }
 
 // ============================================
