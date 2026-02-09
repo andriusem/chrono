@@ -13,7 +13,7 @@ export function useAuth() {
 
   const handleLogin = (userId: string) => {
     login(userId);
-    navigate('/');
+    navigate('/projects');
   };
 
   const handleLogout = () => {
@@ -23,7 +23,7 @@ export function useAuth() {
 
   const handleSwitchRole = (role: Role) => {
     switchRole(role);
-    navigate('/');
+    navigate('/projects');
   };
 
   return {

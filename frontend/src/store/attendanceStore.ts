@@ -1,19 +1,23 @@
 // ============================================
 // ATTENDANCE STORE
 // ============================================
-// Manages clock-in/clock-out records
+// Clock-in/out records + previous-day reconciliation gate.
 
+import { format, subDays } from 'date-fns';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { Attendance } from '@/types';
 import { mockAttendance } from '@/data/mockData';
-import { format } from 'date-fns';
+
+interface ReconciliationState {
+  blocked: boolean;
+  date: string;
+  recordId?: string;
+}
 
 interface AttendanceState {
-  // Data
   records: Attendance[];
 
-  // Actions
   clockIn: (userId: string, time?: string) => void;
   clockOut: (userId: string, time?: string) => void;
   updateRecord: (
@@ -21,125 +25,168 @@ interface AttendanceState {
     updates: { clockInTime?: string; clockOutTime?: string }
   ) => void;
   deleteRecord: (recordId: string, deletedById: string) => void;
+  reconcilePreviousDayClockOut: (
+    userId: string,
+    clockOutTime: string
+  ) => { success: boolean; error?: string };
 
-  // Queries
   getTodayRecord: (userId: string) => Attendance | undefined;
+  getRecordForDate: (userId: string, date: string) => Attendance | undefined;
   getRecordsForUser: (userId: string, limit?: number) => Attendance[];
+  hasUnreconciledPreviousDay: (userId: string) => ReconciliationState;
 }
 
-// Generate unique IDs
 let recordIdCounter = 100;
+
+const todayIso = () => format(new Date(), 'yyyy-MM-dd');
+const yesterdayIso = () => format(subDays(new Date(), 1), 'yyyy-MM-dd');
 
 export const useAttendanceStore = create<AttendanceState>()(
   persist(
     (set, get) => ({
-      // Initialize with mock data
       records: mockAttendance,
 
-      // ============================================
-      // CLOCK IN
-      // ============================================
       clockIn: (userId, time) => {
-        const today = format(new Date(), 'yyyy-MM-dd');
+        const today = todayIso();
         const existing = get().records.find(
-          (r) => r.userId === userId && r.date === today && !r.isDeleted
+          (record) => record.userId === userId && record.date === today && !record.isDeleted
         );
-
         const clockInTime = time || format(new Date(), 'HH:mm');
 
         if (existing) {
-          // Update existing record
           set((state) => ({
-            records: state.records.map((r) =>
-              r.id === existing.id ? { ...r, clockInTime } : r
+            records: state.records.map((record) =>
+              record.id === existing.id ? { ...record, clockInTime } : record
             ),
           }));
-        } else {
-          // Create new record
-          const newRecord: Attendance = {
+          return;
+        }
+
+        const nextRecord: Attendance = {
+          id: `att-${++recordIdCounter}`,
+          userId,
+          date: today,
+          clockInTime,
+          isDeleted: false,
+        };
+
+        set((state) => ({
+          records: [...state.records, nextRecord],
+        }));
+      },
+
+      clockOut: (userId, time) => {
+        const today = todayIso();
+        const clockOutTime = time || format(new Date(), 'HH:mm');
+        const existing = get().records.find(
+          (record) => record.userId === userId && record.date === today && !record.isDeleted
+        );
+
+        if (!existing) {
+          const nextRecord: Attendance = {
             id: `att-${++recordIdCounter}`,
             userId,
             date: today,
-            clockInTime,
+            clockOutTime,
             isDeleted: false,
           };
-
           set((state) => ({
-            records: [...state.records, newRecord],
+            records: [...state.records, nextRecord],
           }));
+          return;
         }
-      },
-
-      // ============================================
-      // CLOCK OUT
-      // ============================================
-      clockOut: (userId, time) => {
-        const today = format(new Date(), 'yyyy-MM-dd');
-        const clockOutTime = time || format(new Date(), 'HH:mm');
 
         set((state) => ({
-          records: state.records.map((r) =>
-            r.userId === userId && r.date === today && !r.isDeleted
-              ? { ...r, clockOutTime }
-              : r
+          records: state.records.map((record) =>
+            record.id === existing.id ? { ...record, clockOutTime } : record
           ),
         }));
       },
 
-      // ============================================
-      // UPDATE RECORD
-      // ============================================
       updateRecord: (recordId, updates) => {
         set((state) => ({
-          records: state.records.map((r) =>
-            r.id === recordId ? { ...r, ...updates } : r
+          records: state.records.map((record) =>
+            record.id === recordId ? { ...record, ...updates } : record
           ),
         }));
       },
 
-      // ============================================
-      // DELETE RECORD (soft delete)
-      // ============================================
       deleteRecord: (recordId, deletedById) => {
         set((state) => ({
-          records: state.records.map((r) =>
-            r.id === recordId
+          records: state.records.map((record) =>
+            record.id === recordId
               ? {
-                  ...r,
+                  ...record,
                   isDeleted: true,
                   deletedAt: new Date().toISOString(),
                   deletedById,
                 }
-              : r
+              : record
           ),
         }));
       },
 
-      // ============================================
-      // QUERIES
-      // ============================================
-
-      getTodayRecord: (userId) => {
-        const today = format(new Date(), 'yyyy-MM-dd');
-        return get().records.find(
-          (r) => r.userId === userId && r.date === today && !r.isDeleted
+      reconcilePreviousDayClockOut: (userId, clockOutTime) => {
+        const previousDate = yesterdayIso();
+        const previousRecord = get().records.find(
+          (record) => record.userId === userId && record.date === previousDate && !record.isDeleted
         );
+
+        if (!previousRecord || !previousRecord.clockInTime) {
+          return { success: false, error: 'No unresolved previous-day clock-in found.' };
+        }
+
+        set((state) => ({
+          records: state.records.map((record) =>
+            record.id === previousRecord.id ? { ...record, clockOutTime } : record
+          ),
+        }));
+        return { success: true };
       },
+
+      getTodayRecord: (userId) =>
+        get().records.find(
+          (record) => record.userId === userId && record.date === todayIso() && !record.isDeleted
+        ),
+
+      getRecordForDate: (userId, date) =>
+        get().records.find(
+          (record) => record.userId === userId && record.date === date && !record.isDeleted
+        ),
 
       getRecordsForUser: (userId, limit) => {
         let records = get()
-          .records.filter((r) => r.userId === userId && !r.isDeleted)
-          .sort((a, b) => b.date.localeCompare(a.date)); // Most recent first
-
-        if (limit) {
-          records = records.slice(0, limit);
-        }
-
+          .records.filter((record) => record.userId === userId && !record.isDeleted)
+          .sort((a, b) => b.date.localeCompare(a.date));
+        if (limit) records = records.slice(0, limit);
         return records;
+      },
+
+      hasUnreconciledPreviousDay: (userId) => {
+        const previousDate = yesterdayIso();
+        const previousRecord = get().records.find(
+          (record) => record.userId === userId && record.date === previousDate && !record.isDeleted
+        );
+
+        if (!previousRecord || !previousRecord.clockInTime) {
+          return { blocked: false, date: previousDate };
+        }
+        if (!previousRecord.clockOutTime) {
+          return {
+            blocked: true,
+            date: previousDate,
+            recordId: previousRecord.id,
+          };
+        }
+        return { blocked: false, date: previousDate, recordId: previousRecord.id };
       },
     }),
     {
-      name: 'chrono-attendance', // localStorage key
+      name: 'chrono-attendance',
+      version: 2,
+      migrate: () => ({
+        records: mockAttendance,
+      }),
     }
   )
 );

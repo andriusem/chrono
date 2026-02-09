@@ -9,6 +9,8 @@ import { mockUsers } from '@/data/mockData';
 
 export function LoginPage() {
   const { login } = useAuth();
+  const defaultEmployee =
+    mockUsers.find((user) => user.role === 'employee' && user.isActive) ?? mockUsers[0];
 
   return (
     <div className="odoo-page min-h-screen flex items-center justify-center p-6">
@@ -33,7 +35,7 @@ export function LoginPage() {
           {/* Microsoft login (demo shortcut) */}
           <button
             className="odoo-btn odoo-btn-primary w-full flex items-center justify-center"
-            onClick={() => login(mockUsers[1].id)}
+            onClick={() => login(defaultEmployee.id)}
           >
             Sign in with Microsoft
           </button>
@@ -61,6 +63,11 @@ export function LoginPage() {
                   <div className="text-xs text-[var(--odoo-gray-600)] truncate">
                     {user.email}
                   </div>
+                  {user.jobTitle && (
+                    <div className="text-xs text-[var(--odoo-gray-500)] truncate">
+                      {user.jobTitle}
+                    </div>
+                  )}
                 </div>
                 <span
                   className={`odoo-badge ${

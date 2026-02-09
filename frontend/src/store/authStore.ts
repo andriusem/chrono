@@ -50,6 +50,10 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'chrono-auth', // localStorage key
+      version: 2,
+      migrate: () => ({
+        currentUser: null,
+      }),
     }
   )
 );

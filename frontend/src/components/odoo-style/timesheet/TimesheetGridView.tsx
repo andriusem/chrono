@@ -210,6 +210,7 @@ export function TimesheetGridView({ onStartTimer }: TimesheetGridViewProps) {
         // Use internal method to add entry directly
         const newEntry: TimeEntry = {
           id: `entry-grid-${Date.now()}`,
+          taskId: `legacy-${row.activityId}`,
           userId: currentUser.id,
           activityId: row.activityId,
           projectId: row.projectId,
@@ -247,6 +248,7 @@ export function TimesheetGridView({ onStartTimer }: TimesheetGridViewProps) {
 
       const newEntry: TimeEntry = {
         id: `entry-grid-${Date.now()}`,
+        taskId: `legacy-${newLineActivity}`,
         userId: currentUser.id,
         activityId: newLineActivity,
         projectId: newLineProject,

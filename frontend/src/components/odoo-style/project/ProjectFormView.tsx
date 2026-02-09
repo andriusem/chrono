@@ -68,7 +68,14 @@ export function ProjectFormView({
 
     const totalMinutes = items.reduce((sum, item) => sum + item.minutes, 0);
 
-    return { items, totalMinutes };
+    const minutesByRole = items.reduce((acc, item) => {
+      acc[item.role] = item.minutes;
+      return acc;
+    }, {} as Record<EmployeeRole, number>);
+
+    const visibleItems = items.filter((item) => item.minutes > 0);
+
+    return { items, visibleItems, totalMinutes, minutesByRole };
   }, [activities, allocations]);
   // Calculate stats
   const totalMinutes = getTotalMinutesForProject(project.id);
@@ -274,7 +281,7 @@ export function ProjectFormView({
                 </span>
               </div>
               <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                {roleSummary.items.map((item) => (
+                {roleSummary.visibleItems.map((item) => (
                   <div
                     key={item.role}
                     className="flex items-center justify-between rounded border border-[var(--odoo-gray-200)] bg-white px-2 py-1.5 text-xs"
@@ -285,6 +292,11 @@ export function ProjectFormView({
                     </span>
                   </div>
                 ))}
+                {roleSummary.visibleItems.length === 0 && (
+                  <div className="text-xs text-[var(--odoo-gray-500)]">
+                    No role allocations for this project yet.
+                  </div>
+                )}
               </div>
             </div>
 
@@ -452,6 +464,7 @@ export function ProjectFormView({
               onAssign={(userId) => assignEmployee(project.id, userId, 'user-1')}
               onUnassign={(userId) => unassignEmployee(project.id, userId)}
               disabled={isArchived}
+              roleMinutesByRole={roleSummary.minutesByRole}
             />
           </div>
         )}
@@ -541,6 +554,7 @@ interface TeamAssignmentListProps {
   onAssign: (userId: string) => void;
   onUnassign: (userId: string) => void;
   disabled?: boolean;
+  roleMinutesByRole: Record<EmployeeRole, number>;
 }
 
 function TeamAssignmentList({
@@ -548,13 +562,26 @@ function TeamAssignmentList({
   onAssign,
   onUnassign,
   disabled,
+  roleMinutesByRole,
 }: TeamAssignmentListProps) {
-  const employees = mockUsers.filter((u) => u.role === 'employee' && u.isActive);
+  const employees = mockUsers.filter((u) => u.isActive);
 
   return (
     <div className="space-y-2">
       {employees.map((employee) => {
-        const isAssigned = assignedEmployeeIds.includes(employee.id);
+        const roleMinutes = employee.jobTitle
+          ? roleMinutesByRole[employee.jobTitle] ?? 0
+          : 0;
+        const isRoleAllocated = roleMinutes > 0;
+        const isAssigned = isRoleAllocated
+          ? assignedEmployeeIds.includes(employee.id)
+          : false;
+        const actionDisabled = disabled || !isRoleAllocated;
+        const actionLabel = isRoleAllocated
+          ? isAssigned
+            ? 'Remove'
+            : 'Assign'
+          : 'No allocation';
 
         return (
           <div
@@ -574,15 +601,31 @@ function TeamAssignmentList({
                 <p className="text-xs text-[var(--odoo-gray-500)]">
                   {employee.email}
                 </p>
+                {employee.jobTitle && (
+                  <p className="text-xs text-[var(--odoo-gray-400)]">
+                    {employee.jobTitle}
+                  </p>
+                )}
               </div>
             </div>
-            <button
-              onClick={() => (isAssigned ? onUnassign(employee.id) : onAssign(employee.id))}
-              className={`odoo-btn ${isAssigned ? '' : 'odoo-btn-primary'}`}
-              disabled={disabled}
-            >
-              {isAssigned ? 'Remove' : 'Assign'}
-            </button>
+            <div className="flex items-center gap-3">
+              {employee.jobTitle && (
+                <span className="text-xs text-[var(--odoo-gray-500)]">
+                  {isRoleAllocated ? formatDuration(roleMinutes) : '0h'}
+                </span>
+              )}
+              <button
+                onClick={() =>
+                  isAssigned ? onUnassign(employee.id) : onAssign(employee.id)
+                }
+                className={`odoo-btn ${
+                  isAssigned ? '' : 'odoo-btn-primary'
+                }`}
+                disabled={actionDisabled}
+              >
+                {actionLabel}
+              </button>
+            </div>
           </div>
         );
       })}

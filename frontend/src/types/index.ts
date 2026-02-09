@@ -13,6 +13,7 @@ export type Role = 'employee' | 'pm';
 export type EmployeeRole =
   | 'Directrice'
   | 'Responsable du développement du projet associatif'
+  | 'Chargé du développement financier et associatf'
   | "Chargée d'accompagnement social"
   | 'Médiatrice Sociale'
   | 'Conseillère numérique'
@@ -45,6 +46,43 @@ export interface Project {
 }
 
 // ============================================
+// DOMAIN / TEMPLATE TYPES
+// ============================================
+
+export interface DomainTemplate {
+  id: string;
+  name: string;
+  displayOrder: number;
+  isGeneral: boolean;
+}
+
+export interface ActivityTemplate {
+  id: string;
+  domainTemplateId: string;
+  name: string;
+  displayOrder: number;
+}
+
+export interface ProjectDomain {
+  id: string;
+  projectId: string;
+  domainTemplateId: string;
+  displayOrder: number;
+}
+
+export interface ProjectActivity {
+  id: string;
+  projectId: string;
+  projectDomainId: string;
+  name: string;
+  sourceActivityTemplateId?: string;
+  isHidden: boolean;
+  kanbanStatusDefault?: TaskStatus;
+  color?: string;
+  allocatedHours?: number;
+}
+
+// ============================================
 // ACTIVITY TYPES
 // ============================================
 
@@ -58,6 +96,62 @@ export interface Activity {
   isArchived: boolean;
   kanbanStatus?: KanbanStatus; // For Kanban board columns, defaults to 'todo'
   allocatedHours?: number; // Planned time budget for the activity (hours)
+}
+
+// ============================================
+// TASK TYPES
+// ============================================
+
+export type TaskStatus = 'todo' | 'in_progress' | 'done';
+
+export type RecurrenceFrequency = 'daily' | 'weekly' | 'monthly';
+
+export interface RecurrenceRule {
+  frequency: RecurrenceFrequency;
+  interval: number;
+  anchorDueDate: string; // ISO date YYYY-MM-DD
+  enabled: boolean;
+}
+
+export type TaskEventType =
+  | 'task_created'
+  | 'task_claimed'
+  | 'task_reassigned'
+  | 'task_started'
+  | 'task_stopped'
+  | 'task_finished'
+  | 'heartbeat_timeout'
+  | 'attendance_reconciled';
+
+export interface Task {
+  id: string;
+  projectId: string;
+  projectDomainId: string;
+  projectActivityId: string;
+  title: string;
+  description?: string;
+  status: TaskStatus;
+  assigneeUserId?: string;
+  createdByUserId: string;
+  urgency: number; // 1..5
+  importance: number; // 1..5
+  priorityScore: number;
+  dueDate: string; // ISO date YYYY-MM-DD
+  isRecurring: boolean;
+  recurrenceRule?: RecurrenceRule;
+  parentRecurringTaskId?: string;
+  createdAt: string;
+  updatedAt: string;
+  completedAt?: string;
+}
+
+export interface TaskEvent {
+  id: string;
+  taskId: string;
+  eventType: TaskEventType;
+  actorUserId: string;
+  timestamp: string;
+  metadata?: Record<string, string | number | boolean | null>;
 }
 
 // ============================================
@@ -76,20 +170,31 @@ export interface ActivityAllocation {
 
 export type TimerStatus = 'running' | 'paused' | 'completed' | 'interrupted';
 
+export type TimeEntryStopReason =
+  | 'manual_stop'
+  | 'manual_finish'
+  | 'heartbeat_timeout'
+  | 'heartbeat_declined';
+
 export interface TimeEntry {
   id: string;
+  taskId: string;
   userId: string;
   activityId: string;
   projectId: string; // Denormalized for easier queries
+  projectDomainId?: string; // Denormalized for domain filtering
+  projectActivityId?: string; // Denormalized for activity filtering
   startTime: string; // ISO date-time string
   endTime?: string; // Undefined while running
   durationMinutes?: number; // Calculated when completed
   status: TimerStatus;
+  stopReason?: TimeEntryStopReason;
   comments?: string;
   isDeleted: boolean;
   deletedAt?: string;
   deletedById?: string;
   lastHeartbeat?: string; // For detecting interrupted timers
+  lastHeartbeatPromptAt?: string;
 }
 
 // ============================================

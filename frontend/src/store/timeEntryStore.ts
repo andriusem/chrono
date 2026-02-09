@@ -1,95 +1,109 @@
 // ============================================
 // TIME ENTRY STORE
 // ============================================
-// Manages time entries and enforces the SINGLE TIMER RULE
+// Task-based time tracking with single active timer per user.
 
+import { differenceInMinutes, format, parseISO } from 'date-fns';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { TimeEntry, TimerStatus } from '@/types';
+import type { TimeEntry, TimeEntryStopReason, TimerStatus } from '@/types';
 import { mockTimeEntries } from '@/data/mockData';
-import { differenceInMinutes, parseISO, format } from 'date-fns';
 
 const MIN_ENTRY_MINUTES = 15;
 
+interface StartTaskTimerInput {
+  userId: string;
+  taskId: string;
+  projectId: string;
+  projectDomainId: string;
+  projectActivityId: string;
+  activityId: string;
+}
+
+interface StopTaskTimerInput {
+  entryId: string;
+  reason: TimeEntryStopReason;
+  comments?: string;
+}
+
 interface TimeEntryState {
-  // Data
   entries: TimeEntry[];
 
-  // Actions
+  startTaskTimer: (
+    input: StartTaskTimerInput
+  ) => { success: boolean; error?: string; entryId?: string };
+  stopTaskTimer: (input: StopTaskTimerInput) => { success: boolean; error?: string };
+  acknowledgeHeartbeat: (entryId: string) => void;
+
+  // Legacy compatibility API
   startTimer: (
     userId: string,
     activityId: string,
     projectId: string
   ) => { success: boolean; error?: string; entryId?: string };
-
   pauseTimer: (entryId: string) => void;
   resumeTimer: (entryId: string) => { success: boolean; error?: string };
-
   finishTimer: (entryId: string, comments?: string) => void;
-
   updateEntry: (
     entryId: string,
     updates: { startTime?: string; endTime?: string; comments?: string }
   ) => void;
-
   deleteEntry: (entryId: string, deletedById: string) => void;
-
-  // Heartbeat for running timers
   updateHeartbeat: (entryId: string) => void;
 
-  // Queries
   getRunningTimer: (userId: string) => TimeEntry | undefined;
   getEntriesForUser: (userId: string, date?: string) => TimeEntry[];
   getEntriesForProject: (projectId: string) => TimeEntry[];
+  getEntriesForTask: (taskId: string) => TimeEntry[];
   getTodayMinutesForActivity: (userId: string, activityId: string) => number;
   getTotalMinutesForActivity: (activityId: string) => number;
   getTotalMinutesForProject: (projectId: string) => number;
+  getTotalMinutesForTask: (taskId: string) => number;
 }
 
-// Generate unique IDs
 let entryIdCounter = 100;
+
+const sumDurationMinutes = (entries: TimeEntry[]) =>
+  entries.reduce((total, entry) => {
+    if (entry.durationMinutes) return total + entry.durationMinutes;
+    if (entry.status === 'running') {
+      return total + differenceInMinutes(new Date(), parseISO(entry.startTime));
+    }
+    return total;
+  }, 0);
 
 export const useTimeEntryStore = create<TimeEntryState>()(
   persist(
     (set, get) => ({
-      // Initialize with mock data
       entries: mockTimeEntries,
 
-      // ============================================
-      // START TIMER
-      // ============================================
-      // IMPORTANT: Enforces single-timer rule
-      startTimer: (userId, activityId, projectId) => {
-        // Check for existing running timer
+      startTaskTimer: ({
+        userId,
+        taskId,
+        projectId,
+        projectDomainId,
+        projectActivityId,
+        activityId,
+      }) => {
         const runningTimer = get().entries.find(
-          (e) => e.userId === userId && e.status === 'running'
+          (entry) => entry.userId === userId && entry.status === 'running' && !entry.isDeleted
         );
 
         if (runningTimer) {
           return {
             success: false,
-            error: 'You already have a timer running. Please stop it first.',
+            error: 'You already have a timer running. Stop it before starting another task.',
           };
         }
 
-        // Check for paused timer
-        const pausedTimer = get().entries.find(
-          (e) => e.userId === userId && e.status === 'paused'
-        );
-
-        if (pausedTimer) {
-          return {
-            success: false,
-            error: 'You have a paused timer. Please finish or resume it first.',
-          };
-        }
-
-        // Create new entry
-        const newEntry: TimeEntry = {
+        const nextEntry: TimeEntry = {
           id: `entry-${++entryIdCounter}`,
+          taskId,
           userId,
           activityId,
           projectId,
+          projectDomainId,
+          projectActivityId,
           startTime: new Date().toISOString(),
           status: 'running',
           isDeleted: false,
@@ -97,249 +111,199 @@ export const useTimeEntryStore = create<TimeEntryState>()(
         };
 
         set((state) => ({
-          entries: [...state.entries, newEntry],
+          entries: [...state.entries, nextEntry],
         }));
 
-        return { success: true, entryId: newEntry.id };
+        return { success: true, entryId: nextEntry.id };
       },
 
-      // ============================================
-      // PAUSE TIMER
-      // ============================================
-      pauseTimer: (entryId) => {
-        set((state) => ({
-          entries: state.entries.map((e) =>
-            e.id === entryId && e.status === 'running'
-              ? { ...e, status: 'paused' as TimerStatus }
-              : e
-          ),
-        }));
-      },
-
-      // ============================================
-      // RESUME TIMER
-      // ============================================
-      resumeTimer: (entryId) => {
-        const entry = get().entries.find((e) => e.id === entryId);
+      stopTaskTimer: ({ entryId, reason, comments }) => {
+        const entry = get().entries.find((currentEntry) => currentEntry.id === entryId);
         if (!entry) {
-          return { success: false, error: 'Entry not found' };
+          return { success: false, error: 'Time entry not found.' };
+        }
+        if (entry.status !== 'running') {
+          return { success: false, error: 'Timer is not running.' };
         }
 
-        // Check for any other running timers
-        const runningTimer = get().entries.find(
-          (e) => e.userId === entry.userId && e.status === 'running'
+        const now = new Date();
+        const durationMinutes = Math.max(
+          MIN_ENTRY_MINUTES,
+          differenceInMinutes(now, parseISO(entry.startTime))
         );
 
-        if (runningTimer) {
-          return {
-            success: false,
-            error: 'Another timer is already running.',
-          };
-        }
-
         set((state) => ({
-          entries: state.entries.map((e) =>
-            e.id === entryId && e.status === 'paused'
+          entries: state.entries.map((currentEntry) =>
+            currentEntry.id === entryId
               ? {
-                  ...e,
-                  status: 'running' as TimerStatus,
-                  lastHeartbeat: new Date().toISOString(),
+                  ...currentEntry,
+                  endTime: now.toISOString(),
+                  durationMinutes,
+                  status: 'completed' as TimerStatus,
+                  stopReason: reason,
+                  comments: comments || currentEntry.comments,
                 }
-              : e
+              : currentEntry
           ),
         }));
 
         return { success: true };
       },
 
-      // ============================================
-      // FINISH TIMER
-      // ============================================
-      finishTimer: (entryId, comments) => {
-        const now = new Date();
-
+      acknowledgeHeartbeat: (entryId) => {
         set((state) => ({
-          entries: state.entries.map((e) => {
-            if (
-              e.id === entryId &&
-              (e.status === 'running' || e.status === 'paused')
-            ) {
-              const startTime = parseISO(e.startTime);
-              const durationMinutes = differenceInMinutes(now, startTime);
-
-              return {
-                ...e,
-                endTime: now.toISOString(),
-                durationMinutes: Math.max(MIN_ENTRY_MINUTES, durationMinutes), // Minimum 15 minutes
-                status: 'completed' as TimerStatus,
-                comments: comments || e.comments,
-              };
-            }
-            return e;
-          }),
+          entries: state.entries.map((entry) =>
+            entry.id === entryId
+              ? {
+                  ...entry,
+                  lastHeartbeatPromptAt: new Date().toISOString(),
+                  lastHeartbeat: new Date().toISOString(),
+                }
+              : entry
+          ),
         }));
       },
 
-      // ============================================
-      // UPDATE ENTRY
-      // ============================================
+      // Legacy wrappers
+      startTimer: (userId, activityId, projectId) =>
+        get().startTaskTimer({
+          userId,
+          taskId: `legacy-${activityId}`,
+          projectId,
+          projectDomainId: '',
+          projectActivityId: activityId,
+          activityId,
+        }),
+
+      pauseTimer: (entryId) => {
+        get().stopTaskTimer({ entryId, reason: 'manual_stop' });
+      },
+
+      resumeTimer: (entryId) => {
+        const existing = get().entries.find((entry) => entry.id === entryId);
+        if (!existing) {
+          return { success: false, error: 'Entry not found' };
+        }
+        return get().startTaskTimer({
+          userId: existing.userId,
+          taskId: existing.taskId,
+          projectId: existing.projectId,
+          projectDomainId: existing.projectDomainId || '',
+          projectActivityId: existing.projectActivityId || existing.activityId,
+          activityId: existing.activityId,
+        });
+      },
+
+      finishTimer: (entryId, comments) => {
+        get().stopTaskTimer({
+          entryId,
+          reason: 'manual_finish',
+          comments,
+        });
+      },
+
       updateEntry: (entryId, updates) => {
         set((state) => ({
-          entries: state.entries.map((e) => {
-            if (e.id === entryId) {
-              const updated = { ...e, ...updates };
-
-              // Recalculate duration if times changed
-              if (updates.startTime || updates.endTime) {
-                if (updated.endTime) {
-                  const startTime = parseISO(updated.startTime);
-                  const endTime = parseISO(updated.endTime);
-                  updated.durationMinutes = Math.max(
-                    MIN_ENTRY_MINUTES,
-                    differenceInMinutes(endTime, startTime)
-                  );
-                }
-              }
-
-              return updated;
+          entries: state.entries.map((entry) => {
+            if (entry.id !== entryId) return entry;
+            const nextEntry = { ...entry, ...updates };
+            if (nextEntry.endTime) {
+              nextEntry.durationMinutes = Math.max(
+                MIN_ENTRY_MINUTES,
+                differenceInMinutes(parseISO(nextEntry.endTime), parseISO(nextEntry.startTime))
+              );
             }
-            return e;
+            return nextEntry;
           }),
         }));
       },
 
-      // ============================================
-      // DELETE ENTRY (soft delete)
-      // ============================================
       deleteEntry: (entryId, deletedById) => {
         set((state) => ({
-          entries: state.entries.map((e) =>
-            e.id === entryId
+          entries: state.entries.map((entry) =>
+            entry.id === entryId
               ? {
-                  ...e,
+                  ...entry,
                   isDeleted: true,
                   deletedAt: new Date().toISOString(),
                   deletedById,
                 }
-              : e
+              : entry
           ),
         }));
       },
 
-      // ============================================
-      // UPDATE HEARTBEAT
-      // ============================================
       updateHeartbeat: (entryId) => {
         set((state) => ({
-          entries: state.entries.map((e) =>
-            e.id === entryId
-              ? { ...e, lastHeartbeat: new Date().toISOString() }
-              : e
+          entries: state.entries.map((entry) =>
+            entry.id === entryId
+              ? { ...entry, lastHeartbeat: new Date().toISOString() }
+              : entry
           ),
         }));
       },
 
-      // ============================================
-      // QUERIES
-      // ============================================
-
-      getRunningTimer: (userId) => {
-        return get().entries.find(
-          (e) => e.userId === userId && e.status === 'running' && !e.isDeleted
-        );
-      },
+      getRunningTimer: (userId) =>
+        get().entries.find(
+          (entry) => entry.userId === userId && entry.status === 'running' && !entry.isDeleted
+        ),
 
       getEntriesForUser: (userId, date) => {
-        let entries = get().entries.filter(
-          (e) => e.userId === userId && !e.isDeleted
-        );
-
+        let result = get().entries.filter((entry) => entry.userId === userId && !entry.isDeleted);
         if (date) {
-          entries = entries.filter(
-            (e) => format(parseISO(e.startTime), 'yyyy-MM-dd') === date
+          result = result.filter(
+            (entry) => format(parseISO(entry.startTime), 'yyyy-MM-dd') === date
           );
         }
-
-        // Sort by start time descending (most recent first)
-        return entries.sort(
-          (a, b) =>
-            parseISO(b.startTime).getTime() - parseISO(a.startTime).getTime()
+        return result.sort(
+          (a, b) => parseISO(b.startTime).getTime() - parseISO(a.startTime).getTime()
         );
       },
 
-      getEntriesForProject: (projectId) => {
-        return get()
-          .entries.filter((e) => e.projectId === projectId && !e.isDeleted)
-          .sort(
-            (a, b) =>
-              parseISO(b.startTime).getTime() - parseISO(a.startTime).getTime()
-          );
-      },
+      getEntriesForProject: (projectId) =>
+        get()
+          .entries.filter((entry) => entry.projectId === projectId && !entry.isDeleted)
+          .sort((a, b) => parseISO(b.startTime).getTime() - parseISO(a.startTime).getTime()),
+
+      getEntriesForTask: (taskId) =>
+        get()
+          .entries.filter((entry) => entry.taskId === taskId && !entry.isDeleted)
+          .sort((a, b) => parseISO(b.startTime).getTime() - parseISO(a.startTime).getTime()),
 
       getTodayMinutesForActivity: (userId, activityId) => {
         const today = format(new Date(), 'yyyy-MM-dd');
-        const entries = get().entries.filter(
-          (e) =>
-            e.userId === userId &&
-            e.activityId === activityId &&
-            !e.isDeleted &&
-            format(parseISO(e.startTime), 'yyyy-MM-dd') === today
+        return sumDurationMinutes(
+          get().entries.filter(
+            (entry) =>
+              entry.userId === userId &&
+              entry.activityId === activityId &&
+              !entry.isDeleted &&
+              format(parseISO(entry.startTime), 'yyyy-MM-dd') === today
+          )
         );
-
-        return entries.reduce((total, entry) => {
-          if (entry.durationMinutes) {
-            return total + entry.durationMinutes;
-          }
-          // For running timer, calculate current duration
-          if (entry.status === 'running') {
-            return total + differenceInMinutes(new Date(), parseISO(entry.startTime));
-          }
-          return total;
-        }, 0);
       },
 
-      getTotalMinutesForActivity: (activityId) => {
-        const entries = get().entries.filter(
-          (e) => e.activityId === activityId && !e.isDeleted
-        );
+      getTotalMinutesForActivity: (activityId) =>
+        sumDurationMinutes(
+          get().entries.filter((entry) => entry.activityId === activityId && !entry.isDeleted)
+        ),
 
-        return entries.reduce((total, entry) => {
-          if (entry.durationMinutes) {
-            return total + entry.durationMinutes;
-          }
-          if (entry.status === 'running') {
-            return total + differenceInMinutes(new Date(), parseISO(entry.startTime));
-          }
-          return total;
-        }, 0);
-      },
+      getTotalMinutesForProject: (projectId) =>
+        sumDurationMinutes(
+          get().entries.filter((entry) => entry.projectId === projectId && !entry.isDeleted)
+        ),
 
-      getTotalMinutesForProject: (projectId) => {
-        const entries = get().entries.filter(
-          (e) => e.projectId === projectId && !e.isDeleted
-        );
-
-        return entries.reduce((total, entry) => {
-          if (entry.durationMinutes) {
-            return total + entry.durationMinutes;
-          }
-          if (entry.status === 'running') {
-            return total + differenceInMinutes(new Date(), parseISO(entry.startTime));
-          }
-          return total;
-        }, 0);
-      },
+      getTotalMinutesForTask: (taskId) =>
+        sumDurationMinutes(
+          get().entries.filter((entry) => entry.taskId === taskId && !entry.isDeleted)
+        ),
     }),
     {
-      name: 'chrono-time-entries', // localStorage key
-      version: 2,
-      migrate: (persistedState) => {
-        const state = persistedState as TimeEntryState;
-        return {
-          ...state,
-          entries: [],
-        };
-      },
+      name: 'chrono-time-entries',
+      version: 3,
+      migrate: () => ({
+        entries: [],
+      }),
     }
   )
 );

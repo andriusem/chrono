@@ -35,6 +35,10 @@ const ROLE_COLUMNS = [
     role: 'Responsable du développement du projet associatif',
   },
   {
+    csv: 'Chargé du développement financier et associatf',
+    role: 'Chargé du développement financier et associatf',
+  },
+  {
     csv: "Chargée d'accompagnement social",
     role: "Chargée d'accompagnement social",
   },
@@ -75,21 +79,25 @@ const PALETTE = [
   '#6c757d',
 ];
 
-const projects = [];
-const activities = [];
-const allocations = [];
-const projectTotals = new Map();
-
-let currentProject = null;
-let projectCounter = 0;
-let activityCounter = 0;
-
 const parseNumber = (value) => {
   if (!value) return 0;
   const normalized = value.replace(',', '.').replace(/\s/g, '');
   const parsed = parseFloat(normalized);
   return Number.isFinite(parsed) ? parsed : 0;
 };
+
+const domainTemplates = [];
+const activityTemplates = [];
+const roleAllocations = [];
+
+// Legacy compatibility exports (keep old consumers compiling while migrating).
+const objectifProjects = [];
+const objectifActivities = [];
+const objectifAllocations = [];
+
+let currentDomain = null;
+let domainCounter = 0;
+let activityCounter = 0;
 
 for (let i = 1; i < lines.length; i += 1) {
   const line = lines[i];
@@ -115,37 +123,52 @@ for (let i = 1; i < lines.length; i += 1) {
   }
 
   if (!first && second) {
-    projectCounter += 1;
-    const projectId = `project-${projectCounter}`;
-    currentProject = {
-      id: projectId,
+    domainCounter += 1;
+    const domainId = `domain-template-${domainCounter}`;
+    currentDomain = {
+      id: domainId,
+      name: second,
+      displayOrder: domainCounter,
+      isGeneral: true,
+    };
+    domainTemplates.push(currentDomain);
+
+    // Legacy: map each domain to a pseudo project to avoid breaking old imports.
+    objectifProjects.push({
+      id: `project-${domainCounter}`,
       name: second,
       description: '',
       status: 'active',
       createdAt: '2026-02-05T09:00:00Z',
       createdById: 'user-1',
       allocatedHours: 0,
-    };
-    projects.push(currentProject);
-    projectTotals.set(projectId, 0);
+    });
     continue;
   }
 
-  if (/^\d+/.test(first) && second) {
-    if (!currentProject) {
-      continue;
-    }
-
+  if (/^\d+/.test(first) && second && currentDomain) {
     activityCounter += 1;
-    const activityId = `activity-${activityCounter}`;
+    const activityTemplateId = `activity-template-${activityCounter}`;
+    const activityTemplate = {
+      id: activityTemplateId,
+      domainTemplateId: currentDomain.id,
+      name: second,
+      displayOrder: activityCounter,
+    };
+    activityTemplates.push(activityTemplate);
 
     let activityAllocated = 0;
     roleIndexes.forEach(({ role, index }) => {
       const rawValue = (columns[index] || '').trim();
       const hours = parseNumber(rawValue);
       if (hours > 0) {
-        allocations.push({
-          activityId,
+        roleAllocations.push({
+          activityId: activityTemplateId,
+          role,
+          allocatedHours: hours,
+        });
+        objectifAllocations.push({
+          activityId: `activity-${activityCounter}`,
           role,
           allocatedHours: hours,
         });
@@ -153,31 +176,31 @@ for (let i = 1; i < lines.length; i += 1) {
       }
     });
 
-    const activity = {
-      id: activityId,
+    // Legacy: keep old activity shape for compatibility while new pages migrate.
+    objectifActivities.push({
+      id: `activity-${activityCounter}`,
       name: second,
-      projectId: currentProject.id,
+      projectId: `project-${currentDomain.displayOrder}`,
       color: PALETTE[(activityCounter - 1) % PALETTE.length],
       isArchived: false,
       allocatedHours: activityAllocated,
-    };
+    });
 
-    activities.push(activity);
-    projectTotals.set(
-      currentProject.id,
-      projectTotals.get(currentProject.id) + activityAllocated
-    );
+    objectifProjects[currentDomain.displayOrder - 1].allocatedHours += activityAllocated;
   }
 }
-
-projects.forEach((project) => {
-  project.allocatedHours = projectTotals.get(project.id) || 0;
-});
 
 const fileContents = `// AUTO-GENERATED FROM Objectif repartition des tâches.csv
 // Do not edit manually. Run frontend/scripts/convert_objectif_csv.cjs instead.
 
-import type { Project, Activity, EmployeeRole, ActivityAllocation } from '@/types';
+import type {
+  Project,
+  Activity,
+  EmployeeRole,
+  ActivityAllocation,
+  DomainTemplate,
+  ActivityTemplate
+} from '@/types';
 
 export const EMPLOYEE_ROLES: EmployeeRole[] = ${JSON.stringify(
   ROLE_COLUMNS.map((role) => role.role),
@@ -185,20 +208,39 @@ export const EMPLOYEE_ROLES: EmployeeRole[] = ${JSON.stringify(
   2
 )};
 
+export const domainTemplates: DomainTemplate[] = ${JSON.stringify(
+  domainTemplates,
+  null,
+  2
+)};
+
+export const activityTemplates: ActivityTemplate[] = ${JSON.stringify(
+  activityTemplates,
+  null,
+  2
+)};
+
+export const roleAllocations: ActivityAllocation[] = ${JSON.stringify(
+  roleAllocations,
+  null,
+  2
+)};
+
+// Legacy compatibility exports. Prefer domainTemplates/activityTemplates/roleAllocations.
 export const objectifProjects: Project[] = ${JSON.stringify(
-  projects,
+  objectifProjects,
   null,
   2
 )};
 
 export const objectifActivities: Activity[] = ${JSON.stringify(
-  activities,
+  objectifActivities,
   null,
   2
 )};
 
 export const objectifAllocations: ActivityAllocation[] = ${JSON.stringify(
-  allocations,
+  objectifAllocations,
   null,
   2
 )};
